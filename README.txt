@@ -11,6 +11,8 @@ PROJECT: project.so - a probe-mode Pin tool that profiles in TC and re-optimizes
 ---------------
 From the src/ directory (it contains project.cpp, makefile, makefile.rules):
 
+  mkdir -p obj-intel64          (needed once in a fresh directory; the course makefile does not create it
+                                 when the target obj-intel64/project.so is given explicitly)
   make PIN_ROOT=<pin-kit-root> obj-intel64/project.so
 
 On our machine:

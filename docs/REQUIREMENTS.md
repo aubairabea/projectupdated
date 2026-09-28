@@ -31,8 +31,8 @@ Each item is ticked in Phase 8 (docs/AUDIT.md) with evidence.
 - [x] R17. dump_prof() (profile dump, knob -dump_prof).
 
 ## Submission
-- [ ] R18. One file **project.zip** containing **project.so** (compiled and tested).
-- [ ] R19. Directory **src/** with all sources + the make files + **README.txt**.
+- [x] R18. One file **project.zip** containing **project.so** (compiled and tested).
+- [x] R19. Directory **src/** with all sources + the make files + **README.txt**.
 - [ ] R20. README: (a) names + ID numbers (both students).
 - [x] R21. README: (b) compilation command.
 - [x] R22. README: (c) how to run the tool.
