@@ -1,0 +1,39 @@
+# tag: s8_c6_r1   date: 2026-09-28T21:44:50+03:00   commit: 58df1e1
+# native command: /usr/bin/time -v ./bzip2 -c input-long.txt > out_native.bz2 2> native_time.txt
+# tool   command: taskset -c 0 /home/binarym/Desktop/pin/pin-external-4.0-99633-g5ca9893f2-gcc-linux/pin -t obj-intel64/project.so -prof_time 2 -no_reorder -- ./bzip2 -c input-long.txt > out_tool.bz2 2> tool_time.txt
+## native /usr/bin/time -v output (native_time.txt):
+	Command being timed: "./bzip2 -c input-long.txt"
+	User time (seconds): 4.62
+	System time (seconds): 0.01
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:04.65
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 7604
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 1675
+	Voluntary context switches: 2
+	Involuntary context switches: 123
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 872
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+## native output: out_native.bz2 size=444576 md5=8722c10f2ac1dfde915e79b1943a27d5 exit=0
+## tool stderr (tool_time.txt):
+[time] TC build (not counted): 0.231 s
+[time] profiling window: 2.003 s (prof_time 2)
+[time] TC2 build: 0.004 s
+[time] TC2 commit: 0.000 s
+[time] TC2 execution: 1.921 s
+[time] honest end-to-end total: 3.928 s
+ Translated code run (including profiling) took: 3.921 seconds
+## tool output: out_tool.bz2 size=444576 md5=8722c10f2ac1dfde915e79b1943a27d5 exit=0
+## cmp out_native.bz2 out_tool.bz2: IDENTICAL ; ERROR lines: 0 ; TC2 committed: YES
+## RESULT	s8_c6_r1	bzip2	444576	8722c10f2ac1dfde915e79b1943a27d5	444576	8722c10f2ac1dfde915e79b1943a27d5	IDENTICAL	0	0	0	YES	4.62	0.01	4.63	4.65	2.003	0.004	0.000	1.921	3.928	3.921

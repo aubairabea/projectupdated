@@ -1,0 +1,63 @@
+# native command: /usr/bin/time -v ./bzip2 -c input-long.txt > out_native.bz2 2> native_time.txt
+# tool command: /usr/bin/time -v taskset -c 0 /home/binarym/Desktop/pin/pin-external-4.0-99633-g5ca9893f2-gcc-linux/pin -t obj-intel64/project.so -prof_time 2 -- ./bzip2 -c input-long.txt > out_tool.bz2 2> tool_full.txt
+## native_time.txt
+	Command being timed: "./bzip2 -c input-long.txt"
+	User time (seconds): 4.71
+	System time (seconds): 0.00
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:04.72
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 7660
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 1676
+	Voluntary context switches: 1
+	Involuntary context switches: 25
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 872
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+## tool_full.txt (tool stderr + /usr/bin/time of the whole pin run)
+[time] TC build (not counted): 0.241 s
+[time] profiling window: 2.001 s (prof_time 2)
+[time] TC2 build: 0.004 s
+[time] TC2 commit: 0.000 s
+[time] TC2 execution: 2.001 s
+[time] honest end-to-end total: 4.007 s
+ Translated code run (including profiling) took: 4.001 seconds
+	Command being timed: "taskset -c 0 /home/binarym/Desktop/pin/pin-external-4.0-99633-g5ca9893f2-gcc-linux/pin -t obj-intel64/project.so -prof_time 2 -- ./bzip2 -c input-long.txt"
+	User time (seconds): 4.06
+	System time (seconds): 0.20
+	Percent of CPU this job got: 96%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:04.41
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 62276
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 23304
+	Voluntary context switches: 185
+	Involuntary context switches: 1371
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 880
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+## sizes/md5
+-rw-rw-r-- 1 binarym binarym 444576 Sep 28 21:37 out_native.bz2
+-rw-rw-r-- 1 binarym binarym 444576 Sep 28 21:37 out_tool.bz2
+8722c10f2ac1dfde915e79b1943a27d5  out_native.bz2
+8722c10f2ac1dfde915e79b1943a27d5  out_tool.bz2
+## cmp: IDENTICAL

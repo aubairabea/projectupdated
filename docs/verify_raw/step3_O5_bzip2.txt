@@ -1,0 +1,13 @@
+# O5 proof for bzip2: flip one byte in a copy of out_tool.bz2, cmp must report a difference
+$ cmp out_tool.bz2 o5_copy
+out_tool.bz2 o5_copy differ: byte 101, line 2
+cmp exit code: 1 (1 = difference detected)
+8722c10f2ac1dfde915e79b1943a27d5  out_tool.bz2
+d9c3de4ebcfa6ec768b67da607294a1c  o5_copy
+$ ./bzip2 -c input-long.txt > o5_a ; ./bzip2 -c tm/small1k > o5_b ; cmp o5_a o5_b
+o5_a o5_b differ: byte 11, line 1
+cmp exit code: 1 (1 = the two native outputs differ)
+-rw-rw-r-- 1 binarym binarym 444576 Sep 28 21:23 o5_a
+-rw-rw-r-- 1 binarym binarym    520 Sep 28 21:23 o5_b
+8722c10f2ac1dfde915e79b1943a27d5  o5_a
+df17948f6da4908a55c6e0a9e9f3024c  o5_b

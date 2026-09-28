@@ -1,0 +1,39 @@
+# tag: s3_cc1_r2   date: 2026-09-28T21:24:35+03:00   commit: 58df1e1
+# native command: /usr/bin/time -v ./cc1 200.i -o out_native.s > native_stdout.txt 2> native_time.txt
+# tool   command: taskset -c 0 /home/binarym/Desktop/pin/pin-external-4.0-99633-g5ca9893f2-gcc-linux/pin -t obj-intel64/project.so -prof_time 2  -- ./cc1 200.i -o out_tool.s > tool_stdout.txt 2> tool_time.txt
+## native /usr/bin/time -v output (native_time.txt):
+	Command being timed: "./cc1 200.i -o out_native.s"
+	User time (seconds): 22.44
+	System time (seconds): 0.23
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:22.70
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 258320
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 105647
+	Voluntary context switches: 3
+	Involuntary context switches: 303
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 13256
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+## native output: out_native.s size=6783961 md5=290a33647ad8fe87f5776a7ff7aee8cd exit=0
+## tool stderr (tool_time.txt):
+[time] TC build (not counted): 6.614 s
+[time] profiling window: 2.004 s (prof_time 2)
+[time] TC2 build: 0.505 s
+[time] TC2 commit: 0.000 s
+[time] TC2 execution: 23.605 s
+[time] honest end-to-end total: 26.114 s
+ Translated code run (including profiling) took: 25.605 seconds
+## tool output: out_tool.s size=6783961 md5=290a33647ad8fe87f5776a7ff7aee8cd exit=0
+## cmp out_native.s out_tool.s: IDENTICAL ; ERROR lines: 0 ; TC2 committed: YES
+## RESULT	s3_cc1_r2	cc1	6783961	290a33647ad8fe87f5776a7ff7aee8cd	6783961	290a33647ad8fe87f5776a7ff7aee8cd	IDENTICAL	0	0	0	YES	22.44	0.23	22.67	22.7	2.004	0.505	0.000	23.605	26.114	25.605

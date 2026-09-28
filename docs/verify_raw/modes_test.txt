@@ -1,0 +1,8 @@
+# test_modes test: native: ./bzip2 -t tm/long.bz2 < /dev/null ; tool: /home/binarym/Desktop/pin/pin-external-4.0-99633-g5ca9893f2-gcc-linux/pin -t obj-intel64/project.so -prof_time 2  -- ./bzip2 -t tm/long.bz2 < /dev/null
+native size=0 md5=d41d8cd98f00b204e9800998ecf8427e exit=0
+tool size=0 md5=d41d8cd98f00b204e9800998ecf8427e exit=0 tc2=early
+[time] TC build (not counted): 0.231 s
+[time] profiling window: program exited before prof_time ended (0.411 s)
+[time] TC2 was not committed before exit
+[time] honest end-to-end total: 0.411 s
+ Translated code run (including profiling) took: 0.411 seconds

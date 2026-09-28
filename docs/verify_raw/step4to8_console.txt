@@ -1,0 +1,89 @@
+=== STEP 4: 10 rounds, the manual procedure ===
+s4_r1	IDENTICAL	4.87	2.001	0.008	0.000	2.046	4.055	4.046
+s4_r2	IDENTICAL	4.88	2.002	0.005	0.000	2.166	4.174	4.166
+s4_r3	IDENTICAL	4.73	2.001	0.004	0.000	1.959	3.964	3.959
+s4_r4	IDENTICAL	4.92	2.002	0.005	0.000	1.935	3.942	3.935
+s4_r5	IDENTICAL	4.66	2.001	0.009	0.000	2.417	4.426	4.417
+s4_r6	IDENTICAL	4.66	2.002	0.005	0.000	2.049	4.056	4.049
+s4_r7	IDENTICAL	4.75	2.001	0.004	0.000	1.980	3.984	3.980
+s4_r8	IDENTICAL	4.82	2.009	0.006	0.000	2.037	4.052	4.037
+s4_r9	IDENTICAL	4.75	2.001	0.007	0.000	2.252	4.259	4.252
+s4_r10	IDENTICAL	4.74	2.002	0.005	0.000	2.044	4.051	4.044
+=== STEP 5: outside clock, 5 rounds ===
+1	4.77	0.04	4.81	4.84	4.026	4.43	4.04	0.21	IDENTICAL	0	0
+2	4.28	0.42	4.70	4.73	4.114	4.49	4.16	0.16	IDENTICAL	0	0
+3	4.67	0.01	4.68	4.7	4.153	4.53	4.16	0.18	IDENTICAL	0	0
+4	3.79	0.92	4.71	4.75	3.954	4.32	3.93	0.22	IDENTICAL	0	0
+5	4.71	0.00	4.71	4.72	4.007	4.41	4.06	0.20	IDENTICAL	0	0
+=== STEP 6: bench.sh bzip2 5 ===
+round 1: native_cpu=4.65 (user 4.64 + sys 0.01) tool_e2e=3.885 compat=3.879 improvement=16.45% cmp=IDENTICAL exit=0/0 errors=0 tc2=YES OK
+round 2: native_cpu=4.64 (user 4.59 + sys 0.05) tool_e2e=3.962 compat=3.949 improvement=14.61% cmp=IDENTICAL exit=0/0 errors=0 tc2=YES OK
+round 3: native_cpu=4.54 (user 4.53 + sys 0.01) tool_e2e=3.919 compat=3.914 improvement=13.68% cmp=IDENTICAL exit=0/0 errors=0 tc2=YES OK
+round 4: native_cpu=4.60 (user 4.58 + sys 0.02) tool_e2e=4.073 compat=4.068 improvement=11.46% cmp=IDENTICAL exit=0/0 errors=0 tc2=YES OK
+round 5: native_cpu=4.72 (user 4.71 + sys 0.01) tool_e2e=4.068 compat=4.062 improvement=13.81% cmp=IDENTICAL exit=0/0 errors=0 tc2=YES OK
+SUMMARY bzip2 rounds=5 ok=5 fails=0 extra='' improvement: median=13.81% mean=14.00% min=11.46% max=16.45%
+=== STEP 7: backup vs new, 5 rounds (native, new, backup per round) ===
+1	4.69	3.983	3.979	4.0093	3.99031	IDENTICAL	IDENTICAL	0	0	0	0
+2	4.73	4.075	4.070	3.9938	3.97643	IDENTICAL	IDENTICAL	0	0	0	0
+3	4.84	4.068	4.063	3.9270	3.90989	IDENTICAL	IDENTICAL	0	0	0	0
+4	4.81	4.105	4.100	4.0789	4.0631	IDENTICAL	IDENTICAL	0	0	0	0
+5	4.77	4.086	4.082	4.0552	4.03904	IDENTICAL	IDENTICAL	0	0	0	0
+s7_backup_cc1	6783961	290a33647ad8fe87f5776a7ff7aee8cd	6783961	290a33647ad8fe87f5776a7ff7aee8cd	IDENTICAL	0	0	0	YES	26.5176	25.6187
+s7_backup_sgcc_peak	3873835	4c7942fda4169bc38439005ea539304a	3873835	4c7942fda4169bc38439005ea539304a	IDENTICAL	0	0	0	YES	14.1078	10.6922
+=== STEP 8: knob evidence (tool only, -verbose, bzip2) ===
+[]
+stack fold: 77 routines, 1914 loads replaced, 775 register syncs, 130 address folds
+translated 118/118 routines, 23786 instructions, 2895 blocks, 28 indirect sites, TC 165634 bytes
+TC2: 46 routines, 48003 bytes; devirt calls 0 jmps 0 targets 0; inverted 118 jmp added 97 removed 44 cold blocks 758
+[-no_stackfold]
+translated 118/118 routines, 23786 instructions, 2895 blocks, 28 indirect sites, TC 166461 bytes
+TC2: 46 routines, 48842 bytes; devirt calls 0 jmps 0 targets 0; inverted 118 jmp added 97 removed 44 cold blocks 758
+[-no_addrfold]
+stack fold: 77 routines, 1914 loads replaced, 775 register syncs, 0 address folds
+translated 118/118 routines, 23786 instructions, 2895 blocks, 28 indirect sites, TC 166177 bytes
+TC2: 46 routines, 48391 bytes; devirt calls 0 jmps 0 targets 0; inverted 118 jmp added 97 removed 44 cold blocks 758
+[-no_cheap_prof -no_sparse_prof]
+stack fold: 77 routines, 1914 loads replaced, 775 register syncs, 130 address folds
+translated 118/118 routines, 23786 instructions, 2895 blocks, 28 indirect sites, TC 231124 bytes
+TC2: 46 routines, 48003 bytes; devirt calls 0 jmps 0 targets 0; inverted 118 jmp added 97 removed 44 cold blocks 758
+[-no_devirt]
+stack fold: 77 routines, 1914 loads replaced, 775 register syncs, 130 address folds
+translated 118/118 routines, 23786 instructions, 2895 blocks, 28 indirect sites, TC 165634 bytes
+TC2: 46 routines, 48003 bytes; devirt calls 0 jmps 0 targets 0; inverted 118 jmp added 97 removed 44 cold blocks 758
+[-no_reorder]
+stack fold: 77 routines, 1914 loads replaced, 775 register syncs, 130 address folds
+translated 118/118 routines, 23786 instructions, 2895 blocks, 28 indirect sites, TC 165634 bytes
+TC2: 46 routines, 47738 bytes; devirt calls 0 jmps 0 targets 0; inverted 0 jmp added 0 removed 0 cold blocks 0
+[-no_stackfold -no_addrfold -no_cheap_prof -no_sparse_prof -no_devirt -no_reorder]
+translated 118/118 routines, 23786 instructions, 2895 blocks, 28 indirect sites, TC 231783 bytes
+TC2: 46 routines, 48577 bytes; devirt calls 0 jmps 0 targets 0; inverted 0 jmp added 0 removed 0 cold blocks 0
+=== STEP 8: ablation, 4 paired rounds each ===
+s8_c1_r1	IDENTICAL	4.77	3.949	[]
+s8_c1_r2	IDENTICAL	4.57	3.983	[]
+s8_c1_r3	IDENTICAL	4.70	3.918	[]
+s8_c1_r4	IDENTICAL	4.63	3.932	[]
+s8_c2_r1	IDENTICAL	4.37	4.951	[-no_stackfold]
+s8_c2_r2	IDENTICAL	4.67	5.087	[-no_stackfold]
+s8_c2_r3	IDENTICAL	4.57	4.987	[-no_stackfold]
+s8_c2_r4	IDENTICAL	4.70	4.987	[-no_stackfold]
+s8_c3_r1	IDENTICAL	4.62	4.550	[-no_addrfold]
+s8_c3_r2	IDENTICAL	4.67	4.435	[-no_addrfold]
+s8_c3_r3	IDENTICAL	4.62	4.495	[-no_addrfold]
+s8_c3_r4	IDENTICAL	4.61	4.483	[-no_addrfold]
+s8_c4_r1	IDENTICAL	4.65	4.270	[-no_cheap_prof -no_sparse_prof]
+s8_c4_r2	IDENTICAL	4.51	4.179	[-no_cheap_prof -no_sparse_prof]
+s8_c4_r3	IDENTICAL	4.53	4.312	[-no_cheap_prof -no_sparse_prof]
+s8_c4_r4	IDENTICAL	4.63	4.265	[-no_cheap_prof -no_sparse_prof]
+s8_c5_r1	IDENTICAL	4.65	3.972	[-no_devirt]
+s8_c5_r2	IDENTICAL	4.79	4.028	[-no_devirt]
+s8_c5_r3	IDENTICAL	4.70	4.038	[-no_devirt]
+s8_c5_r4	IDENTICAL	4.63	4.007	[-no_devirt]
+s8_c6_r1	IDENTICAL	4.63	3.928	[-no_reorder]
+s8_c6_r2	IDENTICAL	4.56	3.881	[-no_reorder]
+s8_c6_r3	IDENTICAL	4.65	4.457	[-no_reorder]
+s8_c6_r4	IDENTICAL	4.69	4.148	[-no_reorder]
+s8_c7_r1	IDENTICAL	4.57	5.263	[-no_stackfold -no_addrfold -no_cheap_prof -no_sparse_prof -no_devirt -no_reorder]
+s8_c7_r2	IDENTICAL	4.85	5.520	[-no_stackfold -no_addrfold -no_cheap_prof -no_sparse_prof -no_devirt -no_reorder]
+s8_c7_r3	IDENTICAL	4.83	5.260	[-no_stackfold -no_addrfold -no_cheap_prof -no_sparse_prof -no_devirt -no_reorder]
+s8_c7_r4	IDENTICAL	4.60	5.309	[-no_stackfold -no_addrfold -no_cheap_prof -no_sparse_prof -no_devirt -no_reorder]
+STEP4TO8-DONE

@@ -1,0 +1,49 @@
+# native: /usr/bin/time -v ./bzip2 -c input-long.txt > out_native.bz2 2> native_time.txt
+# new: taskset -c 0 /home/binarym/Desktop/pin/pin-external-4.0-99633-g5ca9893f2-gcc-linux/pin -t obj-intel64/project.so -prof_time 2 -- ./bzip2 -c input-long.txt > out_tool.bz2 2> tool_time.txt
+# backup: taskset -c 0 /home/binarym/Desktop/pin/pin-external-4.0-99633-g5ca9893f2-gcc-linux/pin -t /home/binarym/Desktop/project4/obj-intel64/project.so -prof_time 2 -- ./bzip2 -c input-long.txt > out_backup.bz2 2> backup_time.txt
+## native
+	Command being timed: "./bzip2 -c input-long.txt"
+	User time (seconds): 4.70
+	System time (seconds): 0.03
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:04.75
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 7708
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 1676
+	Voluntary context switches: 1
+	Involuntary context switches: 106
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 872
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+## new
+[time] TC build (not counted): 0.248 s
+[time] profiling window: 2.001 s (prof_time 2)
+[time] TC2 build: 0.004 s
+[time] TC2 commit: 0.000 s
+[time] TC2 execution: 2.070 s
+[time] honest end-to-end total: 4.075 s
+ Translated code run (including profiling) took: 4.070 seconds
+## backup
+[time] TC build (not counted):   0.4429 s
+[time] profiling window in TC:   2.0001 s
+[time] TC2 build:                0.0173 s
+[time] TC2 commit:               0.0000 s
+[time] execution in TC2:         1.9764 s
+[time] honest end-to-end total:  3.9938 s
+ Translated code run (including profiling) took: 3.97643 seconds
+-rw-rw-r-- 1 binarym binarym 444576 Sep 28 21:38 out_backup.bz2
+-rw-rw-r-- 1 binarym binarym 444576 Sep 28 21:38 out_native.bz2
+-rw-rw-r-- 1 binarym binarym 444576 Sep 28 21:38 out_tool.bz2
+8722c10f2ac1dfde915e79b1943a27d5  out_backup.bz2
+8722c10f2ac1dfde915e79b1943a27d5  out_native.bz2
+8722c10f2ac1dfde915e79b1943a27d5  out_tool.bz2

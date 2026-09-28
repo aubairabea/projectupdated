@@ -1,0 +1,51 @@
+s3_bzip2_r1	444576	8722c10f2ac1dfde915e79b1943a27d5	444576	8722c10f2ac1dfde915e79b1943a27d5	IDENTICAL	0	0	0	YES
+O5 bzip2: cmp exit code: 1 (1 = difference detected)
+O5 bzip2: cmp exit code: 1 (1 = the two native outputs differ)
+s3_bzip2_r2	444576	8722c10f2ac1dfde915e79b1943a27d5	444576	8722c10f2ac1dfde915e79b1943a27d5	IDENTICAL	0	0	0	YES
+s3_cc1_r1	6783961	290a33647ad8fe87f5776a7ff7aee8cd	6783961	290a33647ad8fe87f5776a7ff7aee8cd	IDENTICAL	0	0	0	YES
+O5 cc1: cmp exit code: 1 (1 = difference detected)
+O5 cc1: cmp exit code: 1 (1 = the two native outputs differ)
+s3_cc1_r2	6783961	290a33647ad8fe87f5776a7ff7aee8cd	6783961	290a33647ad8fe87f5776a7ff7aee8cd	IDENTICAL	0	0	0	YES
+s3_sgcc_base_r1	3873835	4c7942fda4169bc38439005ea539304a	3873835	4c7942fda4169bc38439005ea539304a	IDENTICAL	0	0	0	YES
+O5 sgcc_base: cmp exit code: 1 (1 = difference detected)
+O5 sgcc_base: cmp exit code: 1 (1 = the two native outputs differ)
+s3_sgcc_base_r2	3873835	4c7942fda4169bc38439005ea539304a	3873835	4c7942fda4169bc38439005ea539304a	IDENTICAL	0	0	0	YES
+s3_sgcc_peak_r1	3873835	4c7942fda4169bc38439005ea539304a	3873835	4c7942fda4169bc38439005ea539304a	IDENTICAL	0	0	0	YES
+O5 sgcc_peak: cmp exit code: 1 (1 = difference detected)
+O5 sgcc_peak: cmp exit code: 1 (1 = the two native outputs differ)
+s3_sgcc_peak_r2	3873835	4c7942fda4169bc38439005ea539304a	3873835	4c7942fda4169bc38439005ea539304a	IDENTICAL	0	0	0	YES
+s3_cpugcc_r1	3873835	4c7942fda4169bc38439005ea539304a	3873835	4c7942fda4169bc38439005ea539304a	IDENTICAL	0	0	0	YES
+O5 cpugcc: cmp exit code: 1 (1 = difference detected)
+O5 cpugcc: cmp exit code: 1 (1 = the two native outputs differ)
+s3_cpugcc_r2	3873835	4c7942fda4169bc38439005ea539304a	3873835	4c7942fda4169bc38439005ea539304a	IDENTICAL	0	0	0	YES
+s3_sgcc_peak_setarchR_r1	3873835	4c7942fda4169bc38439005ea539304a	3873835	4c7942fda4169bc38439005ea539304a	IDENTICAL	0	0	0	YES
+s3_sgcc_peak_setarchR_r2	3873835	4c7942fda4169bc38439005ea539304a	3873835	4c7942fda4169bc38439005ea539304a	IDENTICAL	0	0	0	YES
+s3_bzip2_prof1	444576	8722c10f2ac1dfde915e79b1943a27d5	444576	8722c10f2ac1dfde915e79b1943a27d5	IDENTICAL	0	0	0	YES
+s3_bzip2_prof4	444576	8722c10f2ac1dfde915e79b1943a27d5	444576	8722c10f2ac1dfde915e79b1943a27d5	IDENTICAL	0	0	0	YES
+s3_stress_bzip2	444576	8722c10f2ac1dfde915e79b1943a27d5	444576	8722c10f2ac1dfde915e79b1943a27d5	IDENTICAL	0	0	0	YES
+TC2: 46 routines, 48157 bytes; devirt calls 5 jmps 1 targets 6; inverted 118 jmp added 97 removed 44 cold blocks 758
+s3_stress_cc1	6783961	290a33647ad8fe87f5776a7ff7aee8cd	6783961	290a33647ad8fe87f5776a7ff7aee8cd	IDENTICAL	0	0	0	YES
+TC2: 2164 routines, 1587950 bytes; devirt calls 144 jmps 228 targets 617; inverted 2974 jmp added 3869 removed 691 cold blocks 66245
+s3_stress_sgcc_peak	3873835	4c7942fda4169bc38439005ea539304a	3873835	4c7942fda4169bc38439005ea539304a	IDENTICAL	0	0	0	YES
+TC2: 3799 routines, 3847924 bytes; devirt calls 552 jmps 490 targets 1459; inverted 4510 jmp added 11383 removed 950 cold blocks 179966
+=== bzip2 modes / empty / tiny (test_modes.sh) ===
+PASS compress-1 (size 1906950 md5 211402d5d8e16e17dd9d2367cc02d3e8 exit 0 tc2 YES)
+PASS compress-9 (size 444576 md5 8722c10f2ac1dfde915e79b1943a27d5 exit 0 tc2 YES)
+PASS decompress (size 20848240 md5 5562c7f682c28c319703cddece8ce8b8 exit 0 tc2 early)
+PASS test (size 0 md5 d41d8cd98f00b204e9800998ecf8427e exit 0 tc2 early)
+PASS empty (size 14 md5 4059d198768f9f8dc9372dc1c54bc3c3 exit 0 tc2 early)
+PASS small1k (size 520 md5 df17948f6da4908a55c6e0a9e9f3024c exit 0 tc2 early)
+PASS rand3m (size 3013846 md5 a145913522b7c5fe36a63fb2d10233dc exit 0 tc2 early)
+PASS stdin (size 444576 md5 8722c10f2ac1dfde915e79b1943a27d5 exit 0 tc2 YES)
+PASS decompress-stdin (size 20848240 md5 5562c7f682c28c319703cddece8ce8b8 exit 0 tc2 early)
+MODES: pass=9 fail=0
+=== round trip ===
+tool exit 0
+native decompress exit 0
+ROUNDTRIP1 IDENTICAL
+native compress exit 0
+tool decompress exit 0
+[time] profiling window: program exited before prof_time ended (0.630 s)
+[time] TC2 was not committed before exit
+ROUNDTRIP2 IDENTICAL
+STEP3-DONE

@@ -1,5 +1,8 @@
 # Phase 2 — Profiling foundation (based on exercise 4)
 
+> **Historical note (re-verification):** the numbers in this file are development-time measurements made with the old test scripts (cached native reference in run1.sh, native pinned to CPU 0, no empty-file/md5/TC2 checks). They were not re-verified. Verified numbers: docs/VERIFICATION.md, docs/SUMMARY.md, docs/AUDIT.md.
+
+
 project.cpp was rewritten from scratch (it no longer edits the base tool in place), keeping the base tool's
 flow and exercise 4's profiling features. The header comment of project.cpp maps each hw4 feature to its
 function here.

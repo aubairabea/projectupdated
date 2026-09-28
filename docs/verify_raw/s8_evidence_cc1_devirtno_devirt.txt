@@ -1,0 +1,15 @@
+# command: taskset -c 0 $PIN -t obj-intel64/project.so -prof_time 2 -verbose -no_devirt -- ./cc1 200.i -o out_tool.s
+stack fold: 30 routines, 59 loads replaced, 512 register syncs, 0 address folds
+region at 0x40800000 size 0x2583000 image 0x400000-0x726484
+translated 4786/4786 routines, 550871 instructions, 119370 blocks, 935 indirect sites, TC 5398537 bytes
+note: 642 routine entries were not probed
+TC2: 2159 routines, 1568295 bytes; devirt calls 0 jmps 0 targets 0; inverted 2984 jmp added 3879 removed 694 cold blocks 66158
+committed 2159 routines to TC2 (1568295 bytes)
+[time] TC build (not counted): 7.103 s
+[time] profiling window: 2.005 s (prof_time 2)
+[time] TC2 build: 0.497 s
+[time] TC2 commit: 0.000 s
+[time] TC2 execution: 25.225 s
+[time] honest end-to-end total: 27.727 s
+ Translated code run (including profiling) took: 27.225 seconds
+exit 0 ; md5 290a33647ad8fe87f5776a7ff7aee8cd  -

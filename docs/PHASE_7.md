@@ -1,5 +1,8 @@
 # Phase 7 — Redundant stack-load elimination (stack fold + address fold), in TC and TC2
 
+> **Historical note (re-verification):** the numbers in this file are development-time measurements made with the old test scripts (cached native reference in run1.sh, native pinned to CPU 0, no empty-file/md5/TC2 checks). They were not re-verified. Verified numbers: docs/VERIFICATION.md, docs/SUMMARY.md, docs/AUDIT.md.
+
+
 Functions: `classify_fold`, `compute_stack_folds_rtn`, `compute_stack_folds`, `address_fold`, `emit_ins`.
 The rewrite is computed once from the original code (`fold_of`) and applied when emitting both TC and TC2.
 

@@ -1,0 +1,28 @@
+# round trip 1: taskset -c 0 $PIN -t obj-intel64/project.so -prof_time 2 -- ./bzip2 -c input-long.txt > rt_tool.bz2 ; ./bzip2 -dc rt_tool.bz2 > rt_back1.txt ; cmp rt_back1.txt input-long.txt
+tool exit 0
+[time] TC build (not counted): 0.237 s
+[time] profiling window: 2.001 s (prof_time 2)
+[time] TC2 build: 0.004 s
+[time] TC2 commit: 0.000 s
+[time] TC2 execution: 2.058 s
+[time] honest end-to-end total: 4.063 s
+ Translated code run (including profiling) took: 4.058 seconds
+native decompress exit 0
+-rw-rw-r-- 1 binarym binarym 20848240 Sep 28 21:34 rt_back1.txt
+-rw-rw-r-- 1 binarym binarym   444576 Sep 28 21:34 rt_tool.bz2
+5562c7f682c28c319703cddece8ce8b8  rt_back1.txt
+5562c7f682c28c319703cddece8ce8b8  input-long.txt
+ROUNDTRIP1 IDENTICAL
+# round trip 2: ./bzip2 -c input-long.txt > rt_nat.bz2 ; taskset -c 0 $PIN -t obj-intel64/project.so -prof_time 2 -- ./bzip2 -dc rt_nat.bz2 > rt_back2.txt ; cmp rt_back2.txt input-long.txt
+native compress exit 0
+tool decompress exit 0
+[time] TC build (not counted): 0.222 s
+[time] profiling window: program exited before prof_time ended (0.630 s)
+[time] TC2 was not committed before exit
+[time] honest end-to-end total: 0.630 s
+ Translated code run (including profiling) took: 0.630 seconds
+-rw-rw-r-- 1 binarym binarym 20848240 Sep 28 21:34 rt_back2.txt
+-rw-rw-r-- 1 binarym binarym   444576 Sep 28 21:34 rt_nat.bz2
+5562c7f682c28c319703cddece8ce8b8  rt_back2.txt
+5562c7f682c28c319703cddece8ce8b8  input-long.txt
+ROUNDTRIP2 IDENTICAL

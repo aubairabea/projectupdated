@@ -1,5 +1,8 @@
 # Phase 3 — Fresh TC2 list
 
+> **Historical note (re-verification):** the numbers in this file are development-time measurements made with the old test scripts (cached native reference in run1.sh, native pinned to CPU 0, no empty-file/md5/TC2 checks). They were not re-verified. Verified numbers: docs/VERIFICATION.md, docs/SUMMARY.md, docs/AUDIT.md.
+
+
 - TC2 is built by `build_tc2()` from the ORIGINAL instruction records (`ins_v`), never by editing the TC list.
   Every entry keeps its true original address (`ent_t::orig`); TC landing addresses are kept separately
   (`tc_land`). TC2 contains no profiling.

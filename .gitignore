@@ -12,3 +12,10 @@ c_nat.*
 c_tool.*
 ref_native_*
 tm/
+native_time.txt
+tool_time.txt
+tool_full.txt
+backup_time.txt
+native_stdout.txt
+tool_stdout.txt
+tm_tiny.i

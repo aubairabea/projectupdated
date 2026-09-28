@@ -1,0 +1,24 @@
+# package test: unzip project.zip into /tmp/pkgtest, build from src/, run bzip2 with separate outputs
+build exit 0 warnings 0
+f2d63a76ce3a7eac9e4807abd539f88b  makefile
+8bd75ba99855633c12796a74e048a387  makefile.rules
+tool exit 0
+-rw-rw-r-- 1 binarym binarym 444576 Sep 28 22:07 /tmp/pkgtest/out_native.bz2
+-rw-rw-r-- 1 binarym binarym 444576 Sep 28 22:07 /tmp/pkgtest/out_tool.bz2
+8722c10f2ac1dfde915e79b1943a27d5  /tmp/pkgtest/out_native.bz2
+8722c10f2ac1dfde915e79b1943a27d5  /tmp/pkgtest/out_tool.bz2
+/tmp/pkgtest/project.so: IDENTICAL ERROR lines: 0
+[time] TC2 commit: 0.000 s
+[time] honest end-to-end total: 5.094 s
+	User time (seconds): 5.61
+	System time (seconds): 0.03
+tool exit 0
+-rw-rw-r-- 1 binarym binarym 444576 Sep 28 22:07 /tmp/pkgtest/out_native.bz2
+-rw-rw-r-- 1 binarym binarym 444576 Sep 28 22:08 /tmp/pkgtest/out_tool.bz2
+8722c10f2ac1dfde915e79b1943a27d5  /tmp/pkgtest/out_native.bz2
+8722c10f2ac1dfde915e79b1943a27d5  /tmp/pkgtest/out_tool.bz2
+/tmp/pkgtest/src/obj-intel64/project.so: IDENTICAL ERROR lines: 0
+[time] TC2 commit: 0.000 s
+[time] honest end-to-end total: 5.217 s
+	User time (seconds): 5.59
+	System time (seconds): 0.01

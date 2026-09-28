@@ -1,0 +1,13 @@
+# command: taskset -c 0 $PIN -t obj-intel64/project.so -prof_time 2 -verbose -no_stackfold -no_addrfold -no_cheap_prof -no_sparse_prof -no_devirt -no_reorder -- ./bzip2 -c input-long.txt > /dev/null
+region at 0x40600000 size 0x115b000 image 0x400000-0x41b944
+translated 118/118 routines, 23786 instructions, 2895 blocks, 28 indirect sites, TC 231783 bytes
+note: 4 routine entries were not probed
+TC2: 46 routines, 48577 bytes; devirt calls 0 jmps 0 targets 0; inverted 0 jmp added 0 removed 0 cold blocks 0
+committed 46 routines to TC2 (48577 bytes)
+[time] TC build (not counted): 0.233 s
+[time] profiling window: 2.004 s (prof_time 2)
+[time] TC2 build: 0.004 s
+[time] TC2 commit: 0.000 s
+[time] TC2 execution: 3.200 s
+[time] honest end-to-end total: 5.207 s
+ Translated code run (including profiling) took: 5.200 seconds

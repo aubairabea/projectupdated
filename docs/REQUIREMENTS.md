@@ -52,3 +52,5 @@ Each item is ticked in Phase 8 (docs/AUDIT.md) with evidence.
 - [x] H6. git commit after every phase.
 
 Status after Phase 8 (evidence in docs/AUDIT.md). R18/R19 are ticked in Phase 10; R20 (names/IDs) is a TODO for the students; R24–R26 are the students' part.
+
+Re-verification (docs/VERIFICATION.md, commit 58df1e1): R11 = bzip2 median +15.23%, worst +5.02%, 10/10 rounds > 5% (internal clock); outside clock median +6.37%. R13/H4 = all 5 benchmarks byte-identical vs a fresh native run with separate output files.

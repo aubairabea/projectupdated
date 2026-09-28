@@ -1,5 +1,8 @@
 # Phase 5 — Code reordering (link1.txt + Newell & Pupyrev)
 
+> **Historical note (re-verification):** the numbers in this file are development-time measurements made with the old test scripts (cached native reference in run1.sh, native pinned to CPU 0, no empty-file/md5/TC2 checks). They were not re-verified. Verified numbers: docs/VERIFICATION.md, docs/SUMMARY.md, docs/AUDIT.md.
+
+
 Functions: `reorder_routine_blocks`, `emit_tc2_block`, `invert_jcc`, `build_tc2`.
 
 ## Algorithm (per routine with a TC2 copy)

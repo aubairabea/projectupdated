@@ -1,0 +1,12 @@
+x_cc1_c_r1	IDENTICAL	22.89	26.597	[]
+x_cc1_c_r2	IDENTICAL	23.67	26.261	[]
+x_cc1_cno_devirt_r1	IDENTICAL	22.70	28.159	[-no_devirt]
+x_cc1_cno_devirt_r2	IDENTICAL	23.31	28.339	[-no_devirt]
+x_cc1_cno_reorder_r1	IDENTICAL	23.99	28.529	[-no_reorder]
+x_cc1_cno_reorder_r2	IDENTICAL	23.35	28.380	[-no_reorder]
+x_cc1_cno_devirtno_reorder_r1	IDENTICAL	22.82	28.089	[-no_devirt -no_reorder]
+x_cc1_cno_devirtno_reorder_r2	IDENTICAL	23.59	29.382	[-no_devirt -no_reorder]
+cmp vs out_native.bz2 from a fresh native run:
+IDENTICAL
+csv rows: 749  sum of block counts: 1.613e+09
+EXTRA-DONE

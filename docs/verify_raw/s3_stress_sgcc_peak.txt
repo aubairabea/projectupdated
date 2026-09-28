@@ -1,0 +1,115 @@
+# tag: s3_stress_sgcc_peak   date: 2026-09-28T21:33:13+03:00   commit: 58df1e1
+# native command: /usr/bin/time -v ./sgcc_peak.mytest-m64 200.i -o out_native.s > native_stdout.txt 2> native_time.txt
+# tool   command: taskset -c 0 /home/binarym/Desktop/pin/pin-external-4.0-99633-g5ca9893f2-gcc-linux/pin -t obj-intel64/project.so -prof_time 2 -devirt_min_count 1 -devirt_min_pct 50 -verbose -- ./sgcc_peak.mytest-m64 200.i -o out_tool.s > tool_stdout.txt 2> tool_time.txt
+## native /usr/bin/time -v output (native_time.txt):
+	Command being timed: "./sgcc_peak.mytest-m64 200.i -o out_native.s"
+	User time (seconds): 9.05
+	System time (seconds): 0.20
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:09.28
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 530300
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 134106
+	Voluntary context switches: 2
+	Involuntary context switches: 243
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 7568
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+## native output: out_native.s size=3873835 md5=4c7942fda4169bc38439005ea539304a exit=0
+## tool stderr (tool_time.txt):
+skip routine (branch into the middle of an instruction): arena_get2.isra.3
+skip routine (branch into the middle of an instruction): malloc_set_state
+stack fold: 40 routines, 26 loads replaced, 441 register syncs, 0 address folds
+region at 0x40e00000 size 0x5806000 image 0x400000-0xd90f65
+translated 12653/13735 routines, 1735443 instructions, 422327 blocks, 4551 indirect sites, TC 18129186 bytes
+probe refused by Pin for build_decl_stat.cold (original entry stays)
+probe refused by Pin for native_encode_expr.cold (original entry stays)
+probe refused by Pin for handle_flatten_attribute.lto_priv.0 (original entry stays)
+probe refused by Pin for decl_die_table_hash.lto_priv.0 (original entry stays)
+probe refused by Pin for decl_loc_table_hash.lto_priv.0 (original entry stays)
+probe refused by Pin for gt_pch_p_20VEC_pubname_entry_gc (original entry stays)
+probe refused by Pin for gt_pch_p_18comdat_type_struct (original entry stays)
+probe refused by Pin for gt_pch_p_P16var_loc_list_def4htab (original entry stays)
+probe refused by Pin for gt_pch_p_P10die_struct4htab (original entry stays)
+probe refused by Pin for gt_pch_p_P15dwarf_file_data4htab (original entry stays)
+probe refused by Pin for gt_pch_p_18VEC_vcall_entry_gc (original entry stays)
+probe refused by Pin for gt_pch_p_10vcall_insn (original entry stays)
+probe refused by Pin for gt_pch_pa_ranges_by_label (original entry stays)
+probe refused by Pin for gt_pch_p_14bitmap_obstack (original entry stays)
+probe refused by Pin for gt_pch_p_24types_used_by_vars_entry (original entry stays)
+probe refused by Pin for gt_pch_p_11fixed_value (original entry stays)
+probe refused by Pin for hook_bool_tree_bool_false (original entry stays)
+probe refused by Pin for gen_x86_64_shld.lto_priv.0 (original entry stays)
+probe refused by Pin for ix86_veclibabi_acml.lto_priv.0 (original entry stays)
+probe refused by Pin for gen_sse4_2_crc32hi (original entry stays)
+probe refused by Pin for gen_sse2_cvtps2dq (original entry stays)
+probe refused by Pin for gen_sse2_cvttps2dq (original entry stays)
+probe refused by Pin for gen_lceildfsi2 (original entry stays)
+probe refused by Pin for gen_signbitdf2 (original entry stays)
+probe refused by Pin for gen_signbitxf2 (original entry stays)
+probe refused by Pin for gen_movmisalignv2sf (original entry stays)
+probe refused by Pin for gen_vec_setv2si (original entry stays)
+probe refused by Pin for gen_vec_setv4hi (original entry stays)
+probe refused by Pin for gen_vec_extractv2si (original entry stays)
+probe refused by Pin for gen_vec_extractv4hi (original entry stays)
+probe refused by Pin for gen_vec_initv2si (original entry stays)
+probe refused by Pin for gen_vec_initv4hi (original entry stays)
+probe refused by Pin for gen_vec_initv8qi (original entry stays)
+probe refused by Pin for gen_vec_initv16qi (original entry stays)
+probe refused by Pin for gen_vec_initv8hi (original entry stays)
+probe refused by Pin for gen_vec_initv4si (original entry stays)
+probe refused by Pin for gen_vec_initv2di (original entry stays)
+probe refused by Pin for gen_vec_initv4sf (original entry stays)
+probe refused by Pin for gen_vec_initv2df (original entry stays)
+probe refused by Pin for gen_vec_extract_oddv2df (original entry stays)
+probe refused by Pin for gen_vec_extract_oddv2di (original entry stays)
+probe refused by Pin for gen_vec_extract_oddv4si (original entry stays)
+probe refused by Pin for gen_vec_extract_oddv8hi (original entry stays)
+probe refused by Pin for gen_vec_extract_oddv16qi (original entry stays)
+probe refused by Pin for gen_vec_extract_oddv4df (original entry stays)
+probe refused by Pin for output_1185.lto_priv.0 (original entry stays)
+probe refused by Pin for output_1245.lto_priv.0 (original entry stays)
+probe refused by Pin for output_1550.lto_priv.0 (original entry stays)
+probe refused by Pin for output_36.lto_priv.0 (original entry stays)
+probe refused by Pin for output_60.lto_priv.0 (original entry stays)
+probe refused by Pin for output_121.lto_priv.0 (original entry stays)
+probe refused by Pin for output_497.lto_priv.0 (original entry stays)
+probe refused by Pin for output_550.lto_priv.0 (original entry stays)
+probe refused by Pin for output_551.lto_priv.0 (original entry stays)
+probe refused by Pin for output_552.lto_priv.0 (original entry stays)
+probe refused by Pin for output_553.lto_priv.0 (original entry stays)
+probe refused by Pin for output_554.lto_priv.0 (original entry stays)
+probe refused by Pin for output_555.lto_priv.0 (original entry stays)
+probe refused by Pin for output_556.lto_priv.0 (original entry stays)
+probe refused by Pin for output_557.lto_priv.0 (original entry stays)
+probe refused by Pin for output_563.lto_priv.0 (original entry stays)
+probe refused by Pin for output_565.lto_priv.0 (original entry stays)
+probe refused by Pin for output_567.lto_priv.0 (original entry stays)
+probe refused by Pin for output_817.lto_priv.0 (original entry stays)
+probe refused by Pin for free_new_var (original entry stays)
+probe refused by Pin for remove_node_data.lto_priv.0 (original entry stays)
+probe refused by Pin for compute_reloc_for_rtx_1.lto_priv.0 (original entry stays)
+probe refused by Pin for output_132.lto_priv.0 (original entry stays)
+note: 5370 routine entries were not probed
+TC2: 3799 routines, 3847924 bytes; devirt calls 552 jmps 490 targets 1459; inverted 4510 jmp added 11383 removed 950 cold blocks 179966
+committed 3799 routines to TC2 (3847924 bytes)
+[time] TC build (not counted): 24.181 s
+[time] profiling window: 2.009 s (prof_time 2)
+[time] TC2 build: 1.639 s
+[time] TC2 commit: 0.006 s
+[time] TC2 execution: 8.888 s
+[time] honest end-to-end total: 12.541 s
+ Translated code run (including profiling) took: 10.888 seconds
+## tool output: out_tool.s size=3873835 md5=4c7942fda4169bc38439005ea539304a exit=0
+## cmp out_native.s out_tool.s: IDENTICAL ; ERROR lines: 0 ; TC2 committed: YES
+## RESULT	s3_stress_sgcc_peak	sgcc_peak	3873835	4c7942fda4169bc38439005ea539304a	3873835	4c7942fda4169bc38439005ea539304a	IDENTICAL	0	0	0	YES	9.05	0.20	9.25	9.28	2.009	1.639	0.006	8.888	12.541	10.888

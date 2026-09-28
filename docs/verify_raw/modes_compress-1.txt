@@ -1,0 +1,10 @@
+# test_modes compress-1: native: ./bzip2 -1 -c input-long.txt < /dev/null ; tool: /home/binarym/Desktop/pin/pin-external-4.0-99633-g5ca9893f2-gcc-linux/pin -t obj-intel64/project.so -prof_time 2  -- ./bzip2 -1 -c input-long.txt < /dev/null
+native size=1906950 md5=211402d5d8e16e17dd9d2367cc02d3e8 exit=0
+tool size=1906950 md5=211402d5d8e16e17dd9d2367cc02d3e8 exit=0 tc2=YES
+[time] TC build (not counted): 0.245 s
+[time] profiling window: 2.001 s (prof_time 2)
+[time] TC2 build: 0.004 s
+[time] TC2 commit: 0.000 s
+[time] TC2 execution: 0.022 s
+[time] honest end-to-end total: 2.027 s
+ Translated code run (including profiling) took: 2.022 seconds

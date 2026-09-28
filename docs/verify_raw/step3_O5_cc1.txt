@@ -1,0 +1,13 @@
+# O5 proof for cc1: flip one byte in a copy of out_tool.s, cmp must report a difference
+$ cmp out_tool.s o5_copy
+out_tool.s o5_copy differ: byte 101, line 9
+cmp exit code: 1 (1 = difference detected)
+290a33647ad8fe87f5776a7ff7aee8cd  out_tool.s
+fd93e2a5257dbfcc3fbfa7da2ec10bbc  o5_copy
+$ ./cc1 200.i -o o5_a ; ./cc1 tm_tiny.i -o o5_b ; cmp o5_a o5_b
+o5_a o5_b differ: byte 9, line 1
+cmp exit code: 1 (1 = the two native outputs differ)
+-rw-rw-r-- 1 binarym binarym 6783961 Sep 28 21:24 o5_a
+-rw-rw-r-- 1 binarym binarym     524 Sep 28 21:24 o5_b
+290a33647ad8fe87f5776a7ff7aee8cd  o5_a
+4c8389516ba454571182f2176f57593f  o5_b

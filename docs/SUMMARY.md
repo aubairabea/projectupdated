@@ -1,29 +1,46 @@
-# Summary — final numbers
+# Summary — verified final numbers
 
-Metric: improvement = (native CPU − tool honest end-to-end) / native CPU; paired runs, taskset -c 0, medians.
+All numbers come from the re-verification (docs/VERIFICATION.md, raw files in docs/verify_raw/), measured at
+commit 58df1e1. The tool source is identical to the Phase 10 version.
 
-## bzip2 (the target): requirement met
-10 paired rounds, -prof_time 2: median native 4.97 s, median tool 4.29 s → **median +13.5%, worst +5.1%,
-best +23.0%**. Every round above +5%.
+Metric: improvement = (native user+sys − tool "honest end-to-end total") / (native user+sys) × 100.
+Each tool run is paired with a native run taken right before it. Native unpinned, tool `taskset -c 0`.
 
-## Progress by phase (bzip2, paired medians)
-| state | vs native |
-|---|---|
-| base tool (bprofile-with-gearing) | −43% (and cc1 output wrong) |
-| Phase 3: fresh TC/TC2, flag-free profiling | −13.3% |
-| Phase 5: + devirt + reorder | −12.0% |
-| Phase 6: + cheap/sparse profiling | −12.4% (vs −16.9% without it in the same session) |
-| Phase 7: + stack fold | +4.9% |
-| + liveness-based spares | +5.0% |
-| + address fold | +17.0% (3 rounds) / +13.5% (10 rounds, Phase 8) |
+## bzip2: does it beat native by more than 5%?
+| measurement | median | min | max | rounds > 5% |
+|---|---|---|---|---|
+| STEP 4, internal end-to-end, 10 rounds | **+15.23%** | +5.02% | +19.88% | **10/10** |
+| STEP 6, bench.sh, 5 rounds | +13.81% | +11.46% | +16.45% | 5/5 |
+| STEP 5, internal end-to-end, 5 rounds | +14.93% | +11.26% | +16.30% | 5/5 |
+| STEP 5, outside clock, whole Pin run (wall) | **+6.37%** | +3.21% | +8.28% | **3/5** |
+| STEP 5, outside clock, whole Pin run (user+sys) | +9.55% | +7.26% | +11.89% | 5/5 |
 
-## Ablation (bzip2, 4 rounds, median)
-all on +16.3% · no stack fold −9.4% · no address fold +0.7% · no cheap/sparse profiling +6.9% ·
-no devirt (no hot sites in bzip2) · no reorder +16.0% · all off −7.0%.
+The outside wall clock also contains Pin start-up, TC construction and process exit: 0.37–0.40 s per run
+that the internal clock excludes by design. The internal clock starts before the first application
+instruction.
 
-## Other programs (correct everywhere; slower than native)
-cc1 −24.7% (3 rounds; −3.6% with devirt+reorder off), sgcc_base −19.9%, sgcc_peak −41.0%, cpugcc_r_base −23.2%.
+## Ablation (bzip2, 4 paired rounds each, median paired improvement)
+| config | median | min | max |
+|---|---|---|---|
+| default | +15.86% | +12.84% | +17.21% |
+| -no_stackfold | −9.03% | −13.30% | −6.11% |
+| -no_addrfold | +2.73% | +1.52% | +5.03% |
+| -no_cheap_prof -no_sparse_prof | +7.61% | +4.81% | +8.17% |
+| -no_devirt (bzip2: 0 sites qualify, TC2 identical to default) | +14.33% | +13.46% | +15.91% |
+| -no_reorder | +13.22% | +4.15% | +15.16% |
+| all off | −14.49% | −15.41% | −8.90% |
 
-## Correctness
-All five programs byte-identical in every run, incl. setarch -R, devirt stress mode, bzip2 modes and edge
-cases, round trips, all debug knobs (docs/AUDIT.md).
+## gcc family: correct everywhere, slower than native
+- **Correctness:** byte-identical to a fresh native run with separate output files. Covered: 2 rounds each
+  for cc1, sgcc_base, sgcc_peak and cpugcc_r_base; sgcc_peak under `setarch -R` ×2; devirt stress on cc1
+  and sgcc_peak.
+- **Timings (STEP 3 pairs):**
+  - cc1: −45.89%, −15.19%
+  - sgcc_base: −38.11%, −30.40%
+  - sgcc_peak: −64.48%, −45.72%
+  - cpugcc_r_base: −23.67%, −19.38%
+- **cc1 ablation (2 rounds each, mean):** default −13.57%, -no_devirt −22.81%, -no_reorder −20.23%, both off
+  −23.82%. De-virtualization and reordering help cc1, but not enough to beat native.
+
+## Base tool (unchanged bprofile-with-gearing.cpp)
+bzip2 correct, printed time −57.30% vs native. cc1 output wrong: first difference at byte 6669460.

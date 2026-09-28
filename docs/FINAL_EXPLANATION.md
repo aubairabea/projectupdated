@@ -82,12 +82,14 @@ Each tool run is paired with a native run right before it, both on CPU 0; median
 ("prof_time + time after commit") is printed but never used: it hides the real window and the build.
 
 ## 6. Results
-See docs/SUMMARY.md and docs/AUDIT.md.
+Verified numbers: docs/SUMMARY.md, docs/AUDIT.md, docs/VERIFICATION.md (bzip2: median +15.23% over 10 rounds, worst +5.02%; outside clock median +6.37%).
 
 ## 7. Defense Q&A
 **Why must the profiling code not change the flags?** Because the flags can be live at that point: cc1 computes
-a condition, jumps through a switch table, and tests the flags in the target. The base tool's `AND RAX,3`
-broke cc1. All our stubs at arbitrary points use only MOV/MOVZX/LEA; `add` is used only where an analysis
+a condition, jumps through a switch table, and tests the flags in the target. With the base tool, cc1's output
+is wrong (re-verified: first difference at byte 6669460). Its indirect-jump stub is the only profiling code
+that changes the flags (`AND RAX,3`), which is the known cause. Our flag-free version gives correct output
+(re-verified). All our stubs at arbitrary points use only MOV/MOVZX/LEA; `add` is used only where an analysis
 proves the flags are dead (a later instruction writes all six status flags before any read, or a call comes).
 
 **Why never push/pop in stubs?** -O0 leaf functions keep locals in the 128-byte red zone below RSP; a push
@@ -97,8 +99,10 @@ would overwrite them. We save registers to slots in our region (RIP-relative).
 profiled T; only if equal it jumps/calls T's TC2 copy, which is a translation of the same code. Otherwise the
 unchanged original indirect branch runs. Registers and flags are preserved as explained above.
 
-**Why is the region 1 GB above the image?** The heap (brk) starts right after the image; the base tool mapped TC
-exactly there and the static gcc binaries failed in glibc start-up. It must stay within ±2 GB so rel32 branches
+**Why is the region 1 GB above the image?** The heap (brk) starts right after the image, and the base tool
+maps TC at the first free address above the code, i.e. exactly where the heap grows. The task brief reports
+that the static gcc binaries then fail in glibc start-up; we did not reproduce that ourselves. We place the
+region away from the heap; sgcc_peak (also under `setarch -R`) runs correctly. It must stay within ±2 GB so rel32 branches
 and RIP-relative accesses reach both the code and the region.
 
 **How do you switch a running routine from TC to TC2 safely?** The trampoline is written while nothing can
@@ -106,10 +110,11 @@ execute it; then a single aligned 4-byte store turns the NOP pad at the routine 
 trampoline`. A thread fetching the pad sees either the whole old NOP or the whole new jump.
 
 **Why are the gcc binaries slower than native?** They are compiled with optimization, so the stack fold has
-almost nothing to do. Reordering and de-virtualization did not gain in our cc1 measurements — the ablation even
-shows them as a loss (−24.7% with both, −3.6% without; native varied 27–34 s, so this is noisy). Likely causes:
-the bigger TC2 (guards, added jumps, a TC2 build of ~2100–3600 routines inside the measured time) and switch-table
-jumps in TC that land in original code. They are required, so they stay on by default; knobs switch them off.
+almost nothing to do. De-virtualization and reordering DO help cc1 (verified, 2 rounds each, mean vs native:
+default −13.57%, -no_devirt −22.81%, -no_reorder −20.23%, both off −23.82%), but not enough. The remaining costs
+are the profiling window, jumps over disabled stubs in TC, and switch-table jumps in TC that land in original
+code. (An earlier development note claimed the opposite for cc1; that came from a noisy session and was withdrawn
+after re-verification.)
 
 **What is the frequent/rare threshold?** Blocks: cold if count is 0 or below 1 ppm of all block executions
 (`-cold_ppm`). Devirt: ≥100 executions, ≤3 targets each ≥10%, covering ≥80%. (README section (d).)

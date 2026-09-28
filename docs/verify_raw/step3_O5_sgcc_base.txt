@@ -1,0 +1,13 @@
+# O5 proof for sgcc_base: flip one byte in a copy of out_tool.s, cmp must report a difference
+$ cmp out_tool.s o5_copy
+out_tool.s o5_copy differ: byte 101, line 8
+cmp exit code: 1 (1 = difference detected)
+4c7942fda4169bc38439005ea539304a  out_tool.s
+ecf89aaa6567f2b0b6e9185c4387548e  o5_copy
+$ ./sgcc_base.mytest-m64 200.i -o o5_a ; ./sgcc_base.mytest-m64 tm_tiny.i -o o5_b ; cmp o5_a o5_b
+o5_a o5_b differ: byte 9, line 1
+cmp exit code: 1 (1 = the two native outputs differ)
+-rw-rw-r-- 1 binarym binarym 3873835 Sep 28 21:26 o5_a
+-rw-rw-r-- 1 binarym binarym     241 Sep 28 21:26 o5_b
+4c7942fda4169bc38439005ea539304a  o5_a
+acd647e16f9d19a6e23033aed4ad4233  o5_b
