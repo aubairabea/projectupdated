@@ -10,3 +10,4 @@ submission/project.so
 bench_logs/
 c_nat.*
 c_tool.*
+ref_native_*
