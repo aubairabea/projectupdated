@@ -158,6 +158,7 @@ struct rtn_t {
     bool translated;
     bool has_ind_jmp;
     bool no_probe;       // some original branch targets its first bytes: do not overwrite them
+    uint16_t fold_spares; // registers used by the stack fold in this routine (TC stubs must not use them)
     ADDRINT tc_tramp, tc_head;   // TC addresses of the 5-byte trampoline and the 8-byte head pad
     bool in_tc2;
     ADDRINT tc2_head;
@@ -631,6 +632,7 @@ static int analyze_image(IMG img)
         }
         r.has_ind_jmp = false;
         r.no_probe = false;
+        r.fold_spares = 0;
         r.tc_tramp = r.tc_head = r.tc2_head = 0;
         r.in_tc2 = false; r.hot = 0;
         {
@@ -908,10 +910,13 @@ static bool emit_orig(emitter_t &E, const oins_t &o)
 // unfoldable), routines without indirect jumps, cache cleared at calls, push/pop, syscalls, RSP-based
 // stores and RBP writes. When unsure, don't fold.
 KNOB<BOOL> KnobNoStackFold(KNOB_MODE_WRITEONCE, "pintool", "no_stackfold", "0", "Disable redundant stack-load elimination");
+KNOB<BOOL> KnobNoAddrFold(KNOB_MODE_WRITEONCE, "pintool", "no_addrfold", "0",
+    "Disable folding 'mov p,spare; add p,idx; op [p]' into 'op [spare+idx]'");
+static bool flags_dead_from(int i, int end);
 
 struct fold_t { bool drop; uint8_t len; uint8_t bytes[15]; };
 static std::unordered_map<int, fold_t> fold_of;
-static unsigned n_fold_rtns = 0, n_fold_loads = 0, n_fold_syncs = 0;
+static unsigned n_fold_rtns = 0, n_fold_loads = 0, n_fold_syncs = 0, n_addr_folds = 0;
 
 static const xed_reg_enum_t gpr32[16] = {
     XED_REG_EAX, XED_REG_ECX, XED_REG_EDX, XED_REG_EBX, XED_REG_ESP, XED_REG_EBP, XED_REG_ESI, XED_REG_EDI,
@@ -1032,28 +1037,96 @@ static bool enc_sync(fold_t &fo, int s, xed_reg_enum_t src, unsigned w)
     return enc_bytes(&ei, fo);
 }
 
+// Address fold: I2 "mov P,spare" (a folded 64-bit slot load), I3 "add P,X", I4 "op ..,[P+d]" where I4 fully
+// overwrites P and does not otherwise read it, and the flags of the add are dead
+//   -> drop I2 and I3, I4 uses [spare+X*1+d]. I2 may be one instruction earlier if that one does not touch P.
+static void address_fold(const rtn_t &r, const std::map<int, int> &ptr_from_spare)
+{
+    int rend = r.first_ins + r.n_ins;
+    for (auto &kv : ptr_from_spare) {
+        int i2 = kv.first, s = kv.second;
+        const oins_t &o2 = ins_v[i2];
+        xed_decoded_inst_t x2;
+        if (!xdec(&x2, o2.bytes, o2.size)) continue;
+        int P = gpr_index(xed_decoded_inst_get_reg(&x2, XED_OPERAND_REG0));
+        if (P < 0) continue;
+        int i3 = i2 + 1;
+        if (i3 < rend && !(ins_v[i3].flags & IF_LEADER) && ins_v[i3].iclass != XED_ICLASS_ADD && !(ins_v[i3].regs_touch & (1 << P)) &&
+            !(ins_v[i3].flags & (IF_CALL | IF_JCC | IF_JMP | IF_RET | IF_IND_JMP | IF_SYSCALL)))
+            i3++;
+        int i4 = i3 + 1;
+        if (i4 >= rend || (ins_v[i3].flags & IF_LEADER) || (ins_v[i4].flags & IF_LEADER)) continue;
+        if (fold_of.count(i3) || fold_of.count(i4) || (i3 == i2 + 2 && fold_of.count(i2 + 1) && fold_of[i2 + 1].drop)) continue;
+        const oins_t &o3 = ins_v[i3], &o4 = ins_v[i4];
+        xed_decoded_inst_t x3, x4;
+        if (!xdec(&x3, o3.bytes, o3.size) || !xdec(&x4, o4.bytes, o4.size)) continue;
+        if (xed_decoded_inst_get_iclass(&x3) != XED_ICLASS_ADD || xed_decoded_inst_number_of_memory_operands(&x3) != 0) continue;
+        const xed_inst_t *xi3 = xed_decoded_inst_inst(&x3);
+        if (xed_operand_name(xed_inst_operand(xi3, 0)) != XED_OPERAND_REG0 || xed_operand_name(xed_inst_operand(xi3, 1)) != XED_OPERAND_REG1) continue;
+        xed_reg_enum_t d3 = xed_decoded_inst_get_reg(&x3, XED_OPERAND_REG0), s3 = xed_decoded_inst_get_reg(&x3, XED_OPERAND_REG1);
+        if (d3 != gpr64[P] || xed_get_register_width_bits64(s3) != 64) continue;
+        int X = gpr_index(s3);
+        if (X < 0 || X == P || X == 4 || X == s) continue;
+        // I4: one memory operand [P+d], P fully written by I4 and not read except as the base
+        if (xed_decoded_inst_number_of_memory_operands(&x4) != 1 || o4.iclass == XED_ICLASS_LEA) continue;
+        if (xed_decoded_inst_get_base_reg(&x4, 0) != gpr64[P] || xed_decoded_inst_get_index_reg(&x4, 0) != XED_REG_INVALID) continue;
+        xed_reg_enum_t seg = xed_decoded_inst_get_seg_reg(&x4, 0);
+        if (seg == XED_REG_FS || seg == XED_REG_GS) continue;
+        {
+            // P must be the (fully written) destination register REG0 of I4
+            const xed_inst_t *xi4d = xed_decoded_inst_inst(&x4);
+            if (xed_operand_name(xed_inst_operand(xi4d, 0)) != XED_OPERAND_REG0) continue;
+            xed_reg_enum_t d4 = xed_decoded_inst_get_reg(&x4, XED_OPERAND_REG0);
+            if (gpr_index(d4) != P || xed_get_register_width_bits64(d4) < 32 ||
+                xed_decoded_inst_operand_action(&x4, 0) != XED_OPERAND_ACTION_W) continue;
+        }
+        {
+            bool other_read = false;
+            const xed_inst_t *xi4 = xed_decoded_inst_inst(&x4);
+            for (unsigned k = 0; k < xed_inst_noperands(xi4); k++) {
+                xed_operand_enum_t nm = xed_operand_name(xed_inst_operand(xi4, k));
+                if (!xed_operand_is_register(nm)) continue;
+                if (gpr_index(xed_decoded_inst_get_reg(&x4, nm)) == P && xed_operand_action_read(xed_decoded_inst_operand_action(&x4, k))) other_read = true;
+            }
+            if (other_read) continue;
+        }
+        if (!flags_dead_from(i4, rend)) continue;         // the add's flags must be unobservable
+        xed_encoder_request_init_from_decode(&x4);
+        xed_encoder_request_set_base0(&x4, gpr64[s]);
+        xed_encoder_request_set_index(&x4, gpr64[X]);
+        xed_encoder_request_set_scale(&x4, 1);
+        fold_t f4;
+        memset(&f4, 0, sizeof(f4));
+        unsigned len = 0;
+        if (xed_encode(&x4, f4.bytes, XED_MAX_INSTRUCTION_BYTES, &len) != XED_ERROR_NONE) continue;
+        xed_decoded_inst_t chk;
+        if (!xdec(&chk, f4.bytes, len) || xed_decoded_inst_get_base_reg(&chk, 0) != gpr64[s] || xed_decoded_inst_get_index_reg(&chk, 0) != gpr64[X])
+            continue;
+        f4.len = len;
+        f4.drop = true;
+        fold_t z;
+        memset(&z, 0, sizeof(z));
+        z.drop = true;                                    // I2 and I3 disappear
+        fold_of[i2] = z;
+        fold_of[i3] = z;
+        fold_of[i4] = f4;
+        n_addr_folds++;
+    }
+}
+
 static void compute_stack_folds_rtn(rtn_t &r)
 {
     if (!r.translated || r.has_ind_jmp || r.n_ins == 0) return;
     int f0 = r.first_ins, n = r.n_ins;
-    uint16_t touch = 0;
-    bool has_frame = false, leaves = false;
+    bool has_frame = false;
     for (int i = f0; i < f0 + n; i++) {
         const oins_t &o = ins_v[i];
-        touch |= o.regs_touch;
         if (o.iclass == XED_ICLASS_MOV && o.size == 3 && o.bytes[0] == 0x48 && o.bytes[1] == 0x89 && o.bytes[2] == 0xE5) has_frame = true;
-        if ((o.flags & (IF_JCC | IF_JMP)) && (o.targ < r.addr || o.targ >= r.end)) leaves = true;
     }
     if (!has_frame) return;
-    // spare registers: caller-saved, never referenced by the routine (r8/r9 only without tail jumps)
-    vector<int> spares;
-    const int cand[4] = {11, 10, 9, 8};
-    for (int c : cand) {
-        if (touch & (1 << c)) continue;
-        if ((c == 8 || c == 9) && leaves) continue;
-        spares.push_back(c);
-    }
-    if (spares.empty()) return;
+    // Spare registers: caller-saved registers, usable only at points where the application's value is dead
+    // (register liveness below). r10/r11 first (never arguments or return values).
+    vector<int> spares = {11, 10, 9, 8, 7, 6, 1};
     // classify accesses, find the address-taken limit L and inconsistent slots
     vector<facc_t> fa(n);
     INT64 L = 0;
@@ -1133,18 +1206,59 @@ static void compute_stack_folds_rtn(rtn_t &r)
         int tb = block_at(r, o.targ);
         if (tb >= 0) ext[tb - b0] = 1;
     }
+    // Register liveness (backward, per instruction): lo[k] = registers live after instruction k.
+    const uint16_t ALLR = 0xFFFF;
+    const uint16_t CALLER = (1 << 0) | (1 << 1) | (1 << 2) | (1 << 6) | (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10) | (1 << 11);
+    const uint16_t ARGS = (1 << 0) | (1 << 1) | (1 << 2) | (1 << 6) | (1 << 7) | (1 << 8) | (1 << 9);
+    const uint16_t RETL = (1 << 0) | (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5) | (1 << 12) | (1 << 13) | (1 << 14) | (1 << 15);
+    vector<uint16_t> lo(n, 0), bin(nb, 0);
+    auto live_before = [&](int i, uint16_t out) -> uint16_t {
+        const oins_t &o = ins_v[i];
+        uint16_t gen = o.regs_touch & ~o.regs_kill;
+        if (o.flags & IF_SYSCALL) return ALLR;
+        if (o.flags & IF_RET) return RETL | gen;
+        if (o.flags & IF_CALL) return (uint16_t)((out & ~CALLER) | ARGS | gen);
+        return (uint16_t)((out & ~o.regs_kill) | gen);
+    };
+    auto block_out = [&](int b) -> uint16_t {
+        const bbl_t &B = bbl_v[b0 + b];
+        const oins_t &o = ins_v[B.last];
+        uint16_t out = 0;
+        if (o.flags & IF_RET) return 0;
+        if (o.flags & (IF_JCC | IF_JMP)) {
+            int tb = block_at(r, o.targ);
+            out |= tb >= 0 ? bin[tb - b0] : ALLR;
+        }
+        if (!(o.flags & IF_NO_FT)) out |= b + 1 < nb ? bin[b + 1] : ALLR;
+        else if (!(o.flags & (IF_JMP | IF_RET))) out = ALLR;
+        return out;
+    };
+    for (bool changed = true; changed;) {
+        changed = false;
+        for (int b = nb - 1; b >= 0; b--) {
+            const bbl_t &B = bbl_v[b0 + b];
+            uint16_t v = block_out(b);
+            for (int i = B.last; i >= B.first; i--) { lo[i - f0] = v; v = live_before(i, v); }
+            if (v != bin[b]) { bin[b] = v; changed = true; }
+        }
+    }
+    // Can the spare of slot bit 'j' be written right after instruction k (application value dead there)?
+    auto dead_after = [&](int k, int j) -> bool { return !(lo[k] & (1 << spares[j])); };
+
     auto transfer = [&](int k, unsigned v) -> unsigned {
         const facc_t &f = fa[k];
+        for (unsigned j = 0; j < ns; j++) if (ins_v[f0 + k].regs_touch & (1 << spares[j])) v &= ~(1u << j);
         if (f.kind != FA_NONE && f.kind != FA_OTHER) {
             auto it = slot_sp.find(make_pair(f.disp, f.w));
             if (it != slot_sp.end()) {
                 unsigned bit = 1u << it->second;
+                bool dead = dead_after(k, it->second);
                 switch (f.kind) {
-                case FA_ST_REG: v = is_high8(f.reg) ? v & ~bit : v | bit; break;
-                case FA_ST_IMM: v |= bit; break;
-                case FA_LD: if (!is_high8(f.reg)) v |= bit; break;
-                case FA_LDX: if (xed_get_register_width_bits64(f.reg) >= 32) v |= bit; break;
-                case FA_RMW_IMM: case FA_RMW_REG: break;   // valid stays valid (lea sync), invalid stays invalid
+                case FA_ST_REG: v = (!is_high8(f.reg) && dead) ? v | bit : v & ~bit; break;
+                case FA_ST_IMM: v = dead ? v | bit : v & ~bit; break;
+                case FA_LD: if (!is_high8(f.reg) && dead) v |= bit; break;
+                case FA_LDX: if (xed_get_register_width_bits64(f.reg) >= 32 && dead) v |= bit; break;
+                case FA_RMW_IMM: case FA_RMW_REG: if (!dead) v &= ~bit; break;  // valid stays valid through the lea sync
                 default: break;
                 }
             }
@@ -1170,6 +1284,7 @@ static void compute_stack_folds_rtn(rtn_t &r)
     }
     // Emission decisions.
     unsigned loads = 0;
+    std::map<int, int> ptr_from_spare;     // instruction -> spare, for "mov r64,[slot]" replaced by "mov r64,spare"
     for (int b = 0; b < nb; b++) {
         const bbl_t &B = bbl_v[b0 + b];
         unsigned v = in[b];
@@ -1179,22 +1294,24 @@ static void compute_stack_folds_rtn(rtn_t &r)
             auto it = f.kind > FA_NONE && f.kind < FA_OTHER ? slot_sp.find(make_pair(f.disp, f.w)) : slot_sp.end();
             if (it != slot_sp.end()) {
                 int s = spares[it->second];
-                bool valid = (v >> it->second) & 1;
+                bool valid = (v >> it->second) & 1;                        // spare == slot before the instruction
+                bool vt = valid && !(ins_v[i].regs_touch & (1 << s));    // ... and after its own register effects
+                bool dead = dead_after(k, it->second);                   // spare may be written after it
                 fold_t fo;
                 memset(&fo, 0, sizeof(fo));
                 xed_encoder_instruction_t ei;
-                bool ok = false;
+                bool ok = false, need = false;   // need: the dataflow (transfer) assumed a sync is emitted here
                 switch (f.kind) {
                 case FA_ST_REG:
-                    ok = enc_sync(fo, s, f.reg, f.w);
-                    if (ok) n_fold_syncs++;
+                    need = !is_high8(f.reg) && dead;
+                    if (need) ok = enc_sync(fo, s, f.reg, f.w);
                     break;
                 case FA_ST_IMM:
+                    need = dead;
                     if (f.w == 8) xed_inst2(&ei, dstate, XED_ICLASS_MOV, 64, xed_reg(gpr64[s]), xed_simm0((xed_int32_t)f.imm, 32));
                     else xed_inst2(&ei, dstate, XED_ICLASS_MOV, 32, xed_reg(gpr32[s]),
                                    xed_imm0((UINT64)f.imm & (f.w == 4 ? 0xFFFFFFFFULL : f.w == 2 ? 0xFFFFULL : 0xFFULL), 32));
-                    ok = enc_bytes(&ei, fo);
-                    if (ok) n_fold_syncs++;
+                    if (need) ok = enc_bytes(&ei, fo);
                     break;
                 case FA_LD:
                     if (valid && !is_high8(f.reg)) {
@@ -1202,9 +1319,10 @@ static void compute_stack_folds_rtn(rtn_t &r)
                         ok = enc_bytes(&ei, fo);
                         fo.drop = ok;
                         if (ok) loads++;
-                    } else {
+                        if (ok && f.w == 8) ptr_from_spare[i] = s;
+                    } else if (!is_high8(f.reg) && dead) {
+                        need = true;
                         ok = enc_sync(fo, s, f.reg, f.w);
-                        if (ok) n_fold_syncs++;
                     }
                     break;
                 case FA_LDX:
@@ -1213,11 +1331,10 @@ static void compute_stack_folds_rtn(rtn_t &r)
                         ok = enc_bytes(&ei, fo);
                         fo.drop = ok;
                         if (ok) loads++;
-                    } else {
-                        int gi = gpr_index(f.reg);
-                        xed_inst2(&ei, dstate, XED_ICLASS_MOV, 32, xed_reg(gpr32[s]), xed_reg(gpr32[gi]));
-                        ok = xed_get_register_width_bits64(f.reg) >= 32 && enc_bytes(&ei, fo);
-                        if (ok) n_fold_syncs++;
+                    } else if (xed_get_register_width_bits64(f.reg) >= 32 && dead) {
+                        need = true;
+                        xed_inst2(&ei, dstate, XED_ICLASS_MOV, 32, xed_reg(gpr32[s]), xed_reg(gpr32[gpr_index(f.reg)]));
+                        ok = enc_bytes(&ei, fo);
                     }
                     break;
                 case FA_ALU_RM:
@@ -1245,37 +1362,38 @@ static void compute_stack_folds_rtn(rtn_t &r)
                     }
                     break;
                 case FA_RMW_IMM:
-                    if (valid && fits32(f.imm)) {
+                    need = vt && dead;
+                    if (need && fits32(f.imm)) {
                         xed_inst2(&ei, dstate, XED_ICLASS_LEA, 64, xed_reg(gpr64[s]), xed_mem_bd(gpr64[s], xed_disp(f.imm, 32), 64));
                         ok = enc_bytes(&ei, fo);
-                        if (ok) n_fold_syncs++;
                     }
                     break;
                 case FA_RMW_REG:
-                    if (valid) {
+                    need = vt && dead;
+                    if (need) {
                         xed_inst2(&ei, dstate, XED_ICLASS_LEA, 64, xed_reg(gpr64[s]),
                                   xed_mem_bisd(gpr64[s], gpr64[gpr_index(f.reg)], 1, xed_disp(0, 8), 64));
                         ok = enc_bytes(&ei, fo);
-                        if (ok) n_fold_syncs++;
                     }
                     break;
                 }
-                // If a sync could not be encoded, the spare is no longer trustworthy for this slot:
-                // the dataflow assumed it valid, so give up on the whole routine (safe fallback).
-                bool needs_sync = f.kind == FA_ST_REG || f.kind == FA_ST_IMM || (f.kind == FA_LD && !valid) ||
-                                  (f.kind == FA_LDX && !valid) || ((f.kind == FA_RMW_IMM || f.kind == FA_RMW_REG) && valid);
-                if (!ok && needs_sync) {
-                    bool expected_invalid = ((f.kind == FA_ST_REG || f.kind == FA_LD) && is_high8(f.reg)) ||
-                                            (f.kind == FA_LDX && xed_get_register_width_bits64(f.reg) < 32);
-                    if (!expected_invalid) {
-                        for (int j = f0; j < f0 + n; j++) fold_of.erase(j);
-                        return;
-                    }
+                if (need && ok) n_fold_syncs++;
+                // A sync the dataflow relied on could not be encoded: give up on the whole routine (safe).
+                if (need && !ok) {
+                    for (int j = f0; j < f0 + n; j++) fold_of.erase(j);
+                    return;
                 }
                 if (ok) fold_of[i] = fo;
             }
             v = transfer(k, v);
         }
+    }
+    for (auto &kv : slot_sp) r.fold_spares |= 1 << spares[kv.second];
+    if (!KnobNoAddrFold) address_fold(r, ptr_from_spare);
+    if (KnobVerbose && loads >= 20) {
+        cerr << "fold " << r.name << ": " << loads << " loads;";
+        for (auto &kv : slot_sp) cerr << " [rbp" << kv.first.first << "]/" << kv.first.second << "->r" << spares[kv.second];
+        cerr << endl;
     }
     n_fold_rtns++;
     n_fold_loads += loads;
@@ -1286,7 +1404,7 @@ static void compute_stack_folds()
     if (KnobNoStackFold) return;
     for (auto &r : rtn_v) compute_stack_folds_rtn(r);
     if (KnobVerbose)
-        cerr << "stack fold: " << n_fold_rtns << " routines, " << n_fold_loads << " loads replaced, " << n_fold_syncs << " register syncs" << endl;
+        cerr << "stack fold: " << n_fold_rtns << " routines, " << n_fold_loads << " loads replaced, " << n_fold_syncs << " register syncs, " << n_addr_folds << " address folds" << endl;
 }
 
 // Emit original instruction i, applying its stack-fold rewrite if any.
@@ -1296,6 +1414,7 @@ static bool emit_ins(emitter_t &E, int i)
     auto it = fold_of.find(i);
     if (it == fold_of.end()) return emit_orig(E, o);
     if (!it->second.drop && !emit_orig(E, o)) return false;
+    if (it->second.len == 0) return true;
     ent_t &n = E.add();
     memcpy(n.bytes, it->second.bytes, it->second.len);
     n.size = it->second.len;
@@ -1311,7 +1430,7 @@ static inline xed_encoder_operand_t rip_mem(unsigned w) { return xed_mem_bd(XED_
 
 // Counter increment at a point where 'at' is the next original instruction (straight-line path until 'end').
 // Flag-free forms: a dead register, or save/restore RAX through a slot in the region (never push/pop: P13).
-static bool emit_block_counter(emitter_t &E, unsigned ctr, int at, int end, ADDRINT orig)
+static bool emit_block_counter(emitter_t &E, unsigned ctr, int at, int end, ADDRINT orig, uint16_t avoid)
 {
     int skip = E.new_label();
     add_pad(E, skip, orig);
@@ -1323,7 +1442,7 @@ static bool emit_block_counter(emitter_t &E, unsigned ctr, int at, int end, ADDR
         E.bind(skip);
         return true;
     }
-    int r = find_dead_reg(at, end, 0);
+    int r = find_dead_reg(at, end, avoid);
     xed_reg_enum_t R = r >= 0 ? gpr64[r] : XED_REG_RAX;
     if (r < 0) {
         xed_inst2(&ei, dstate, XED_ICLASS_MOV, 64, rip_mem(64), xed_reg(XED_REG_RAX));
@@ -1465,11 +1584,11 @@ static bool emit_tc_routine(emitter_t &E, rtn_t &r)
             for (int p = B.first; p <= B.last; p++) if (flags_dead_from(p, rend)) { cpos = p; break; }
         for (int i = B.first; i <= B.last; i++) {
             const oins_t &o = ins_v[i];
-            if (prof && B.ctr >= 0 && i == cpos && !emit_block_counter(E, B.ctr, i, rend, o.addr)) return false;
+            if (prof && B.ctr >= 0 && i == cpos && !emit_block_counter(E, B.ctr, i, rend, o.addr, r.fold_spares)) return false;
             E.set_land(o.addr);
             if (prof && !emit_indirect_profile(E, o)) return false;
             if (!emit_ins(E, i)) return false;
-            if (prof && (o.flags & IF_JCC) && B.ft_own && !emit_block_counter(E, B.ft_ctr, i + 1, rend, o.addr)) return false;
+            if (prof && (o.flags & IF_JCC) && B.ft_own && !emit_block_counter(E, B.ft_ctr, i + 1, rend, o.addr, r.fold_spares)) return false;
         }
     }
     const oins_t &last = ins_v[rend - 1];
