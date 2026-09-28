@@ -1,0 +1,7 @@
+# command: md5sum makefile makefile.rules ~/Desktop/project4/makefile ~/Desktop/project4/makefile.rules  (NOTE: ~/Desktop/project4_BACKUP_working does not exist; ~/Desktop/project4 used instead)
+f2d63a76ce3a7eac9e4807abd539f88b  makefile
+8bd75ba99855633c12796a74e048a387  makefile.rules
+f2d63a76ce3a7eac9e4807abd539f88b  /home/binarym/Desktop/project4/makefile
+8bd75ba99855633c12796a74e048a387  /home/binarym/Desktop/project4/makefile.rules
+# git log for the makefiles (only the initial commit => never modified in git):
+99a7b80 phase 0 start: base tool copy, references

@@ -1,4 +1,5 @@
 #!/bin/bash
+# NOTE: superseded by the STEP scripts of the re-verification (docs/VERIFICATION.md); kept for history.
 # Phase 8: full correctness matrix + performance + ablation. Everything sequential.
 cd "$(dirname "$0")"
 PIN=$HOME/Desktop/pin/pin-external-4.0-99633-g5ca9893f2-gcc-linux/pin
