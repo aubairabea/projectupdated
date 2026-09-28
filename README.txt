@@ -1,404 +1,248 @@
-================================================================================
- Binary Translation Course Project - project.so
-================================================================================
+PROJECT: project.so - a probe-mode Pin tool that profiles in TC and re-optimizes into TC2
+=====================================================================================
 
-NAMES AND ID NUMBERS
---------------------
-    <name 1>    <ID 1>
-    <name 2>    <ID 2>
-
-
-COMPILATION COMMAND
--------------------
-The sources are in src/: project.cpp, makefile, makefile.rules and this
-README. Copy the src/ directory into the Pin kit's tools directory (for
-example as pin4.0/source/tools/project) and run, from inside it:
-
-    make obj-intel64/project.so
-
-(Running plain "make" builds the same tool.) This produces
-obj-intel64/project.so. Alternatively, the directory can live anywhere if
-PIN_ROOT points to the kit root:
-
-    make PIN_ROOT=<path-to-pin4.0> obj-intel64/project.so
-
-There are no optimization switches to set: every optimization described
-below is built in and always on.
+(a) STUDENTS
+------------
+  Student 1: name TODO-NAME-1     ID TODO-ID-1
+  Student 2: name TODO-NAME-2     ID TODO-ID-2
 
 
-HOW TO RUN THE TOOL
--------------------
-Run the benchmark through Pin, with its normal arguments after "--".
--prof_time sets the number of seconds of profiling in TC before the tool
-switches to the optimized TC2 (default 2; our results use -prof_time 2).
-From the directory that holds the tool and the benchmark:
+(b) COMPILATION
+---------------
+From the src/ directory (it contains project.cpp, makefile, makefile.rules):
 
-    <pindir>/pin -t obj-intel64/project.so -prof_time 2 -- ./bzip2 -c input-long.txt > out_tool.bz2
-    <pindir>/pin -t obj-intel64/project.so -prof_time 2 -- ./cc1 200.i -o out_tool.s
-    <pindir>/pin -t obj-intel64/project.so -prof_time 2 -- ./sgcc_base.mytest-m64 200.i -o out_tool.s
+  make PIN_ROOT=<pin-kit-root> obj-intel64/project.so
 
-On exit the tool prints its elapsed time, including the profiling phase:
+On our machine:
 
-    Translated code run (including profiling) took: <seconds> seconds
+  make PIN_ROOT=$HOME/Desktop/pin/pin-external-4.0-99633-g5ca9893f2-gcc-linux obj-intel64/project.so
 
-together with a breakdown (TC construction, profiling window, TC2 build,
-execution in TC2) and a CPU-time figure. The breakdown also gives the
-measurement used by the provided bprofile-with-gearing tool: add -prof_time
-to the printed "execution in TC2" line (see "How the time is counted").
-
-To run natively for comparison, run the benchmark directly:
-
-    /usr/bin/time -v ./bzip2 -c input-long.txt > out_native.bz2
-
-Correctness check - the two outputs must be byte-identical:
-
-    cmp out_native.bz2 out_tool.bz2
-
-Note: the .mytest-m64 files are provided without execute permission; run
-"chmod u+x <file>" before running them.
-
-Optional numeric knobs (defaults shown; our results use the defaults):
-    -devirt_min_pct 90  -devirt_min_count 1000  -reorder_min_count 1
+The makefiles are the unmodified course files; the build uses -Wall -Werror and produces zero warnings.
 
 
-THRESHOLDS: FREQUENTLY VS. RARELY EXECUTED CODE
------------------------------------------------
-All decisions are made from the execution counts gathered in TC during the
--prof_time window.
+(c) HOW TO RUN
+--------------
+General form:
 
-  Code reordering (trace layout)
-    A basic block is "frequently executed" if it ran at least once during
-    the profiling window (reorder_min_count = 1); a block that never ran is
-    "rarely executed". Traces are grown only along CFG edges whose measured
-    count is non-zero, starting from the most-executed block, so hot blocks
-    are laid out first and in hot-path order, and never-executed blocks end
-    up in a cold tail after all the hot code. We use "ran at least once"
-    rather than a higher cut-off because the profiling window is short
-    (2 seconds): any block seen in that window is on a path the program is
-    actually using.
+  <pin-kit-root>/pin -t <path>/project.so [-prof_time N] [other knobs] -- <program> <args>
 
-  De-virtualization
-    An indirect call or jump site is de-virtualized only if its most
-    frequent target was hit at least 1000 times (devirt_min_count) and
-    accounts for at least 90% of all the samples at that site
-    (devirt_min_pct). Below that, the guard would miss too often to pay for
-    itself, so the site is left as it is.
+The benchmark files may arrive without the execute bit; if so, first run:
 
-  Stack-fold
-    Not profile-driven: it is applied to every matching site, and is
-    applied before TC is built so that the profiling window benefits too.
+  chmod +x bzip2 cc1 sgcc_base.mytest-m64 sgcc_peak.mytest-m64 cpugcc_r_base.mytest-m64
+
+The five benchmarks with the default profiling time of 2 seconds:
+
+  $PIN -t project.so -prof_time 2 -- ./bzip2 -c input-long.txt > out_tool.bz2
+  $PIN -t project.so -prof_time 2 -- ./cc1 200.i -o out_tool.s
+  $PIN -t project.so -prof_time 2 -- ./sgcc_base.mytest-m64 200.i -o out_tool.s
+  $PIN -t project.so -prof_time 2 -- ./sgcc_peak.mytest-m64 200.i -o out_tool.s
+  $PIN -t project.so -prof_time 2 -- ./cpugcc_r_base.mytest-m64 200.i -o out_tool.s
+
+The native (reference) run and the output check, e.g. for bzip2:
+
+  /usr/bin/time -v ./bzip2 -c input-long.txt > out_native.bz2
+  cmp out_native.bz2 out_tool.bz2          (no output = identical)
+
+(for the gcc binaries: <bin> 200.i -o out_native.s ; cmp out_native.s out_tool.s)
+
+What the tool prints (stderr) at exit:
+
+  [time] TC build (not counted): ...        translation before the program starts
+  [time] profiling window: ...              program running in TC with profiling (= prof_time)
+  [time] TC2 build: ...                     building TC2 while the program keeps running in TC
+  [time] TC2 commit: ...                    switching the routines to TC2
+  [time] TC2 execution: ...                 from the switch to exit
+  [time] honest end-to-end total: ...       monotonic clock from the moment the program starts in TC
+                                            until it exits (= window + build + commit + execution)
+   Translated code run (including profiling) took: X seconds
+                                            the base tool's line (prof_time + time from the TC2 commit
+                                            to exit), printed for compatibility only
+
+We compare the "honest end-to-end total" with the NATIVE CPU time (user + sys of /usr/bin/time -v).
+Any failure prints a line starting with "ERROR:".
 
 
-OVERVIEW
+(d) THRESHOLDS: FREQUENTLY vs RARELY EXECUTED
+---------------------------------------------
+1. Code reordering (hot/cold blocks), knob -cold_ppm (default 1):
+   A basic block is RARELY executed (cold) if its execution count during the profiling window is 0, or is
+   below cold_ppm / 1,000,000 of the TOTAL number of block executions counted in the window. Otherwise it is
+   FREQUENTLY executed (hot). Example: bzip2 counts about 1.85e9 block executions in 2 seconds, so a block must
+   run at least ~1850 times to be hot.
+   Why relative: the total count grows with the window length and with the program's speed; a fixed absolute
+   count would mean something different for -prof_time 1 and -prof_time 4. One part per million keeps
+   everything that matters for time in the hot area and moves the error paths and initialisation code away.
+   Hot blocks are chained with Pettis-Hansen and laid out per routine; cold blocks of all routines go to one
+   cold region at the end of TC2. The routine entry block always stays in the hot part.
+   A routine gets a TC2 copy at all only if it executed during the window (count > 0).
+
+2. De-virtualization, knobs -devirt_min_count (default 100), -devirt_min_pct (default 80),
+   -devirt_min_share (default 10), -devirt_max_targets (default 3):
+   An indirect jump or call site is FREQUENTLY executed if it ran at least 100 times in the window. Its most
+   frequent targets (at most 3, each with at least 10% of the site's executions) are guarded only if together
+   they cover at least 80% of its executions. Reasons: a guard costs a few instructions and bytes, so a site
+   must run often to pay for it; below 80% coverage the fallback indirect branch (plus the failed compares) is
+   taken too often; a target with less than 10% share mostly adds a failed compare to every other execution.
+
+
+BASED ON
 --------
-project.so is a Pin probe-mode pintool built on the Exercise-4 basic-block /
-jump profiler and the provided bprofile-with-gearing.cpp. Every routine of
-the main executable is translated into an instrumented translation cache
-(TC) that counts how often each basic block, each fall-through edge and each
-indirect call/jump target is executed. After -prof_time seconds, an internal
-thread uses that profile to build a second, optimized and
-instrumentation-free translation cache (TC2), and execution is redirected
-into it for the rest of the run.
-
-We measured our result against NATIVE execution (the benchmark run directly,
-without Pin).
-
-
-OPTIMIZATIONS USED
-------------------
-All of the following are always on. (The names in parentheses are the names
-of the corresponding switches inside project.cpp.)
-
-  De-virtualization - the required optimization (opt_devirt)
-    Applied to both indirect calls and indirect jumps. During the TC run
-    every indirect call/jump site records its most frequent target. When
-    TC2 is built, a site whose dominant target is hot enough (see the
-    thresholds above) gets a guard in front of it: if the run-time target
-    equals the dominant one, control goes by a direct call/jump straight to
-    that target's translated code; otherwise the original indirect
-    call/jump runs unchanged.
-    A call guard uses a plain cmp, since flags are not preserved across a
-    call anyway. A jump guard must not disturb anything the jump target
-    might rely on, so it compares with lea+jrcxz (neither touches the
-    flags), uses no stack (the enclosing routine may keep live data below
-    the stack pointer), and saves the one register it uses in a scratch
-    word inside our own code cache. A jump is only redirected if its hot
-    target starts a basic block in our translation.
-
-  Code reordering (opt_reorder / opt_trace)
-    Profile-guided trace layout: greedy trace formation along the hottest
-    edges, reversal of conditional branches so that the hot successor falls
-    through, and removal of jumps that became redundant.
-
-  Stack-fold register caching (opt_stackfold / opt_stackfold2 / opt_foldtc1)
-    Our main additional optimization.
-    - opt_stackfold: -O0 code repeatedly reloads the same pointer from the
-      stack, computes an address and uses it ("mov R,[rbp+D]; add R,idx;
-      ...,[R]"). We cache the reloaded pointer in a spare register the
-      first time and fold the address computation directly into the
-      addressing mode of every later use, instead of repeating the reload
-      and the add.
-    - opt_stackfold2: a value that is loaded, immediately stored to a
-      stack slot and reloaded later in the same block is kept in a spare
-      register instead; each later reload becomes a cheap register move
-      (or the memory access is folded into the instruction that uses it).
-    - opt_foldtc1: both rewrites are applied before TC is even built, so
-      the profiling window itself already runs the faster folded code, not
-      only the code that runs in TC2.
-    The spare registers are chosen only from registers that static analysis
-    proves are either never referenced anywhere in the routine, or read only
-    in its entry block and never written - restricted to caller-saved
-    registers, so nothing is left corrupted for the caller. We also verified,
-    by decoding every profiling instruction inside a folded region, that our
-    own instrumentation never writes to a register a fold site reserved.
-
-  Cheaper profiling in TC (opt_sparseprof / opt_leantc1 / opt_densectr)
-    - no counter on blocks whose count can be derived from a predecessor,
-    - no marker NOP in front of every profiling stub,
-    - all counters in one contiguous array (fewer cache misses).
-    These make the fixed profiling window run closer to native speed.
-    (Counters still use registers that are dead at the insertion point
-    wherever the simple liveness test allows it; the wider dead-register
-    search, opt_cheapprof, measured no gain on bzip2 and is off - see
-    "Most contributing optimizations".)
-
-Correctness was verified throughout by comparing the tool's output byte for
-byte against the output of the native binary.
+The tool is based on our exercise 4 pintool (hw4.cpp: counts how often every basic block and every jump
+target executes) and on the course's bprofile-with-gearing.cpp (TC -> TC2 gearing). project.cpp was
+rewritten on that basis:
+  exercise 4 feature                          -> project.cpp
+  per-BBL execution counter                   -> emit_block_counter()
+  fall-through counter after a cond. branch   -> emit_block_counter() on the fall-through path
+  taken = exec - fallthru                     -> derive_profile()
+  indirect jump target table                  -> emit_indirect_profile() (now jumps AND calls, flag-free)
+  dead-register analysis (insKillsFullReg)    -> analyze_ins(), find_dead_reg(), flags_dead_from()
+  skipping untranslatable routines            -> analyze_image()
+  atomic disabling of profiling stubs         -> patch pads + disable_profiling()
+  edge-profile.csv sorted hottest first       -> dump_profile() (-dump_prof)
+  bprofile-with-gearing feature               -> project.cpp
+  translate routines into an instruction list -> analyze_image(), emit_tc_routine(), emitter_t
+  fix RIP-relative / branch displacements     -> layout_and_copy()
+  commit with RTN_ReplaceProbed               -> commit_tc()
+  TC2 thread after prof_time seconds          -> create_tc2_thread_func()
+  TC -> TC2 switch at routine heads           -> commit_tc2()
+  Fini on _exit, elapsed time                 -> Fini() / ExitInProbeMode()
 
 
-MOST CONTRIBUTING OPTIMIZATIONS
+HOW IT WORKS (TC -> TC2)
+------------------------
+1. When the main image is loaded (create_tc): every routine of the executable is decoded; routines that cannot
+   be translated safely are left alone. Basic blocks are formed. One memory region is mapped about 1 GB above
+   the end of the whole image (within 2 GB of the code): data (counters, tables) | TC | TC2.
+2. TC = a translation of every routine with profiling code: a counter per block (sparse: blocks whose count can
+   be derived from a single predecessor have none), a fall-through counter where needed, a target table at every
+   indirect jump and call. The stack fold (below) is applied in TC as well. Every routine is redirected to its TC
+   copy with RTN_ReplaceProbed. Then the program starts.
+3. A tool thread waits -prof_time seconds (clock-checked), disables all profiling stubs (each starts with an
+   8-byte patch pad that one aligned 4-byte store turns into "jmp over the stub"), reads the profile, and builds
+   TC2 from the ORIGINAL instructions, only for routines that ran: blocks reordered, indirect branches
+   de-virtualized, stack fold applied, no profiling. Every branch in TC2 is decoded again and checked.
+4. Commit: each TC routine head (a 5-byte trampoline + an 8-byte pad) is switched with one aligned 4-byte
+   store to jump to its TC2 copy. Calls from then on run in TC2; loops already running in TC finish in TC.
+5. At _exit the times are printed.
+
+
+OPTIMIZATIONS
+-------------
+1. De-virtualization (required). Indirect call: "cmp <operand>, T; jne next; call T' ; jmp done" per guarded
+   target, then the original indirect call. Indirect jump (flags may be live, e.g. in cc1): flag-free guard
+   "mov [slot],rcx; mov rcx,<operand>; lea rcx,[rcx-T1]; jrcxz hit1; lea rcx,[rcx+T1-T2]; jrcxz hit2; ...;
+   mov rcx,[slot]; original jmp; hitK: mov rcx,[slot]; jmp TK'". T' = the target's TC2 copy. The original
+   branch stays as the fallback, so the result is always the same. Knob -no_devirt.
+2. Code reordering (Pettis-Hansen, from the recommended paper: A. Newell and S. Pupyrev, "Improved Basic
+   Block Reordering", IEEE Transactions on Computers 69(12), 2020). Per routine: profiled edges, chains merged
+   along the heaviest edges so the hottest successor falls through; conditional jumps inverted with the table
+   of the course example (link1: JZ<->JNZ, JB<->JNB, JL<->JNL, ...; never JRCXZ/LOOP), a jmp added where a
+   fall-through was broken, a jmp dropped when its target now follows; cold blocks in one cold region at the
+   end of TC2; hot routines sorted by hotness. The paper's ExtTSP refinement is not implemented (the paper
+   reports only about 0.5-1% over this approach). Knob -no_reorder.
+3. Redundant stack-load elimination ("stack fold"), an optimization from class (register allocation /
+   redundant load elimination), in TC and TC2. bzip2 is compiled -O0: every local variable lives in
+   [rbp-X] and is reloaded all the time. The most-read stack slots of a routine get a spare register
+   (a caller-saved register whose value is dead there, by register liveness analysis). All stores stay and
+   also update the register; a later load/compare of the slot uses the register when a dataflow analysis
+   proves it is up to date on every path. Only slots whose address is never taken; cleared at calls,
+   push/pop, syscalls, RSP-based stores, RBP writes; routines with indirect jumps are skipped. Knob
+   -no_stackfold.
+4. Address fold: "mov P,spare ; add P,X ; op dst,[P+d]" -> "op dst,[spare+X+d]" when the add's flags are
+   dead and P is overwritten by the op. Knob -no_addrfold.
+5. Cheap profiling in TC: "add qword [rip+ctr],1" placed where the flags are dead, sparse counters.
+   Knobs -no_cheap_prof, -no_sparse_prof.
+
+
+BUGS OF THE BASE TOOL THAT WE FIXED
+-----------------------------------
+- Indirect-jump profiling used "AND RAX,3", which destroys the flags; cc1 keeps flags live across indirect
+  jumps and produced wrong output. All our profiling code and jump guards are flag-free.
+- TC/TC2 were mapped at the first free address above the code = where the heap grows; the static binaries
+  (sgcc_*) failed in glibc start-up. Our region is ~1 GB above the end of the whole image.
+- The jump-to-original table stored a new entry after incrementing its counter, so lookups never found it.
+  We branch to original code directly (always reachable) and the table, used only as a fallback, uses a map.
+- Multi-byte overwrites of live code (5-byte stub patch, 2-stage TC->TC2 patch) could tear. We use patch
+  pads switched by one aligned 4-byte store.
+- "call reg" was taken as a memory operand (it has a hidden one); we use the first explicit operand.
+- RIP-relative operands in TC2 were derived from TC bytes; we always use the stored original address.
+- A target or RIP address of 0 meant "none"; we use explicit flags.
+- A branch into the middle of an instruction aborted all translation; we skip only that routine.
+- Target hash (target & 3) put all aligned targets in one slot; we use (target >> 4) & 15.
+- Failures were silent; now every failure prints ERROR.
+- sleep(prof_time) can overshoot on this VM; we check the clock in short sleeps.
+- Garbage time if the program exited before TC2; we print what really happened.
+Found while testing (sgcc_peak crashed): Pin's probe overwrites the first bytes of a routine, but some code
+jumps into those bytes from OUTSIDE the routine (a function's ".cold" part entered 2 bytes after its start;
+a 3-byte symbol whose "ret" lies outside the symbol). Such routines are still translated but not probed.
+
+
+HOW TIME IS COUNTED AND RESULTS
 -------------------------------
-To measure each optimization we built the same tool with the twelve
-optimizations as command-line knobs, so every configuration below is the
-same code and only the knobs differ. Each configuration was run 20
-consecutive times on bzip2, each run paired with its own native run. The
-numbers are the mean improvement of our measured end-to-end time over
-native CPU time.
-
-By far the largest contributor is the stack fold together with opt_foldtc1,
-i.e. applying the fold before TC is built rather than only in TC2:
-
-    fold in TC2 only                      +1.0%    (1 of 20 runs above 5%)
-    fold also before profiling (TC1)     +10.4%   (20 of 20 runs above 5%)
-
-With the fold applied only in TC2, the profiling window - about two thirds
-of bzip2's run under the tool (2.01 s of the 3.16 s printed; see the phase
-breakdown under "Timing results on bzip2") - still executes unoptimized
-code, and the tool is barely faster than native.
-
-Among the profiling-cost optimizations, measured by adding each one alone
-to a base of de-virtualization, code reordering and the stack fold:
-
-    none of them                          +5.4%
-    + sparse profiling only              +10.4%
-    + lean TC only                        +6.2%
-    + dense counters only                 +5.6%
-
-Sparse profiling on its own accounts for the whole gain of the group; lean
-TC adds a little, and dense counters add nothing measurable on bzip2. The
-wider dead-register search (opt_cheapprof) measured slightly below the base
-(+4.9%), and function inlining finds no candidates at all in bzip2, so both
-are switched off in the submitted tool. Everything left on together gives
-+10.4% in that knobbed measurement, and +10.1% (measured end-to-end) /
-+10.7% (as in bprofile-with-gearing) in the ten-round batch of the submitted
-binary reported below.
-
-De-virtualization and code reordering are the required and structural part
-of the tool. On bzip2 de-virtualization finds no site hot enough (bzip2 has
-almost no indirect control flow), so its effect there is neutral. On the
-gcc-based benchmarks it is active - 37 call + 23 jump sites in cc1,
-116 + 49 in sgcc_base, 267 + 66 in sgcc_peak and 109 + 42 in
-cpugcc_r_base in our last runs (the exact numbers vary slightly from run to
-run because the profile covers a fixed 2-second window) - always with
-byte-identical output. As an extra correctness check we also lowered the
-thresholds (-devirt_min_count 1 -devirt_min_pct 50), which guards hundreds
-of sites and exercises the fall-back path heavily; the output stayed
-byte-identical on bzip2, cc1 and sgcc_peak.
+Improvement = (native CPU time - honest end-to-end time) / native CPU time, each tool run paired with a
+native run taken right before it, both pinned to CPU 0 (taskset -c 0), medians reported.
+The profiling window IS included (native never pays for it); TC build before the program starts is not.
+Measured on our VM (Intel i7-12700H guest, 4 vCPUs; timing noise of several percent, so paired medians):
+  bzip2 -c input-long.txt, 10 paired rounds, -prof_time 2 (all optimizations on):
+      median native CPU 4.97 s, median tool end-to-end 4.29 s
+      median improvement +13.5%, worst round +5.1%, best +23.0%  -> the >5% requirement is met on bzip2.
+  Ablation, bzip2, 4 paired rounds each (median improvement vs native):
+      all on                        +16.3%
+      -no_stackfold                  -9.4%
+      -no_addrfold                   +0.7%
+      -no_cheap_prof -no_sparse_prof +6.9%
+      -no_devirt                     (no hot indirect sites in bzip2; +26.5% median, one very noisy native)
+      -no_reorder                   +16.0%
+      everything off                 -7.0%
+  cc1 (3 paired rounds): all on -24.7%, -no_devirt -17.0%, -no_reorder -16.1%, both off -3.6%
+      (native itself varied 27-34 s during these runs).
+  sgcc_base -19.9%, sgcc_peak -41.0%, cpugcc_r_base -23.2% (1 round each).
+  All five programs produce byte-identical output in every run (see docs/AUDIT.md).
 
 
-HOW THE TIME IS COUNTED (TWO TOOL METRICS, TWO NATIVE REFERENCES)
-------------------------------------------------------------------
-A run under the tool has four phases:
-
-    (1) translating the program into TC   (before the application starts)
-    (2) the profiling window in TC        (-prof_time seconds)
-    (3) building TC2 and redirecting into it
-    (4) running in TC2 until the program exits
-
-We report the translated run in two ways. Neither includes phase (1),
-exactly as in the provided tool.
-
-  "as in bprofile-with-gearing"
-      prof_time + phase (4).
-      This is what the provided bprofile-with-gearing.cpp prints: it starts
-      its clock only after TC2 has been committed, measures until exit, and
-      adds the -prof_time knob value as a constant. Phase (3) is therefore
-      not counted, and the profiling phase is the nominal 2 seconds rather
-      than a measured value. This is the measurement the course intends.
-
-  "measured end-to-end" (what project.so prints)
-      phases (2) + (3) + (4), measured with a monotonic clock from the
-      moment the application starts running in TC until it exits. It counts
-      the real profiling window and the time spent building TC2 - during
-      which the application keeps running in TC - so it is never smaller
-      than the first metric.
-
-The native run is likewise reported two ways, both from /usr/bin/time:
-
-  native CPU     user + sys: CPU time actually spent executing the program.
-  native wall    elapsed real time, which also includes any waiting.
-
-Native CPU is the smaller of the two, so comparing our time against it is
-the conservative choice; we quote it first throughout.
+KNOBS
+-----
+  -prof_time N            seconds of profiling in TC before TC2 is built (default 2)
+  -no_devirt              disable de-virtualization
+  -devirt_min_count N     minimum executions of a site in the window (default 100)
+  -devirt_min_pct N       minimum coverage of the guarded targets, percent (default 80)
+  -devirt_min_share N     minimum share of one guarded target, percent (default 10)
+  -devirt_max_targets N   maximum guarded targets per site (default 3)
+  -no_reorder             disable code reordering
+  -cold_ppm N             cold-block threshold, parts per million of all block executions (default 1)
+  -no_stackfold           disable the stack fold (TC and TC2)
+  -no_addrfold            disable the address fold
+  -no_cheap_prof          counters always in the flag-free register form
+  -no_sparse_prof         a counter on every block and every fall-through
+  -no_prof                no profiling at all (TC2 then contains nothing)
+  -no_tc2                 do not build TC2 (stay in TC)
+  -no_tc_commit           build TC but do not redirect the program to it
+  -dump_tc / -dump_tc2    disassemble TC / TC2 to stderr
+  -dump_orig_code         disassemble the original routines
+  -dump_prof              write the profile to edge-profile.csv (exercise-4 format)
+  -verbose                statistics and details
+  -dbg_first / -dbg_count debugging: translate only a range of routines
 
 
-TIMING RESULTS ON BZIP2 (vs. NATIVE)
-------------------------------------
-Benchmark: bzip2 -c input-long.txt, tool run with -prof_time 2. Each tool
-run is immediately preceded by a native run of the same program, so changes
-in host speed affect both. Output was compared byte for byte with native on
-every run and was identical every time.
-
-Ten consecutive rounds of the submitted binary (obj-intel64/project.so,
-exactly as shipped in this archive, with no switches beyond -prof_time 2).
-The percentages are against that round's own native CPU time:
-
-    round   native CPU   native wall   as in bprofile-   measured
-                                       with-gearing      end-to-end
-      1       4.930 s      4.99 s       4.054 s (+17.8%)  4.077 s (+17.3%)
-      2       3.440 s      3.45 s       3.518 s ( -2.3%)  3.545 s ( -3.1%)
-      3       3.400 s      3.42 s       3.018 s (+11.2%)  3.038 s (+10.7%)
-      4       3.450 s      3.45 s       3.089 s (+10.5%)  3.106 s (+10.0%)
-      5       3.500 s      3.52 s       3.076 s (+12.1%)  3.094 s (+11.6%)
-      6       3.580 s      3.73 s       3.139 s (+12.3%)  3.157 s (+11.8%)
-      7       3.580 s      3.68 s       3.202 s (+10.6%)  3.223 s (+10.0%)
-      8       3.510 s      3.53 s       3.146 s (+10.4%)  3.167 s ( +9.8%)
-      9       3.510 s      3.53 s       3.106 s (+11.5%)  3.127 s (+10.9%)
-     10       3.610 s      3.65 s       3.137 s (+13.1%)  3.158 s (+12.5%)
-
-    mean improvement      vs native CPU     vs native wall
-      as in bprofile-with-gearing  10.7%          11.7%
-      measured end-to-end          10.1%          11.2%
-
-    9 of the 10 rounds clear 5% on both metrics and against both native
-    references. Round 1 ran while the host was still slow - its native run,
-    4.93 s, is 40% above the average native run of the batch - and round 2 is the one
-    round that misses (-2.3% / -3.1%): its native run was among the fastest
-    of the batch and the tool run right after it was the slowest of the
-    batch, i.e. the host sped up and slowed down between the two halves of
-    that round. We report both rather than drop them. Leaving those two
-    extremes out, the remaining eight rounds average +11.4% (as in
-    bprofile-with-gearing) and +10.9% (measured end-to-end), with every
-    single round between +9.8% and +12.5%.
-
-Where the time goes - the phase breakdown the tool printed in round 10 of
-that batch (native CPU 3.610 s, native wall 3.65 s):
-
-    TC construction (before the clock starts)     0.151 s   in neither metric
-    profiling window in TC                        2.011 s
-    TC2 construction (rebuild + layout + copy)    0.010 s   not in the first metric
-    TC2 commit (redirect TC -> TC2)              0.0001 s   not in the first metric
-    execution in TC2                              1.137 s
-    ----------------------------------------------------------------------
-    as in bprofile-with-gearing (2 + TC2)         3.137 s   +13.1% vs native CPU
-    measured end-to-end (printed "overall")       3.158 s   +12.5% vs native CPU
-
-The profiling window is about two thirds of the run under the tool, which
-is why applying the stack fold before TC is built (opt_foldtc1) is worth so
-much more than applying it in TC2 alone.
-
-The two tool metrics stay close on bzip2 because what the first one leaves
-out is small here: TC2 construction took 10-12 ms, and the redirect about
-0.1 ms.
-
-Earlier batches of the same configuration agree. A ten-round batch of the
-identical code built with the optimizations as command-line knobs, with
-exactly the knob set that is hard-coded in the submitted tool, gave +10.4%
-(measured end-to-end) and +10.9% (as in bprofile-with-gearing) against
-native CPU. Over the whole project we measured well over 60 rounds on bzip2
-with this method; the mean stayed in the 9-13% range throughout.
-
-Taken together, bzip2 runs roughly 10-12% faster than native on the metric
-the course intends, and roughly 10-11% faster on our stricter end-to-end
-metric, against either native reference.
+KNOWN LIMITATIONS
+-----------------
+- The gcc binaries run slower than native: the profiling window, the TC2 build and the jumps into original
+  code (switch tables target original addresses in TC) cost more than anything we gain on code that is
+  already compiled with optimization. On cc1 our measurements even show de-virtualization and reordering
+  as a loss (-24.7% with both vs -3.6% without, noisy native 27-34 s); they are kept on by default because
+  they are the required optimizations, and can be switched off with -no_devirt / -no_reorder.
+  The >5% target is met on bzip2.
+- Save slots used by the profiling stubs and guards are shared by all threads; the benchmarks are
+  single-threaded (a multi-threaded program would need per-thread slots).
+- Return addresses on the stack point into TC/TC2 (as in the base tool): code that inspects its own return
+  addresses (e.g. C++ exception unwinding through translated frames) is not supported.
+- Loops that are already running in TC when TC2 is committed finish in TC.
+- ExtTSP is not implemented.
 
 
-RESULTS ON THE OTHER BENCHMARKS (cc1, cpugcc_r_base, sgcc_base, sgcc_peak)
---------------------------------------------------------------------------
-Same method, three consecutive rounds each of the submitted build,
-compiling 200.i. On these four the tool is slower than native on both
-metrics; all runs completed without crashes and every output was
-byte-identical to native (3 of 3 each). The bzip2 row is the ten-round
-batch above, repeated here for comparison.
-
-    benchmark        as in bprofile-with-gearing   measured end-to-end
-                     vs CPU      vs wall           vs CPU      vs wall
-    bzip2            +10.7%      +11.7%            +10.1%      +11.2%
-    cc1              -20.3%      -19.1%            -22.7%      -21.5%
-    sgcc_base        -25.9%      -24.7%            -47.3%      -45.9%
-    sgcc_peak        -35.4%      -34.9%            -59.2%      -58.6%
-    cpugcc_r_base    -28.3%      -27.8%            -49.0%      -48.5%
-
-    (positive = faster than native)
-
-The gap between the two tool metrics is much wider here than on bzip2
-because building TC2 for these binaries is real work that the first metric
-does not count: about 0.4-0.6 s for cc1 and about 1.5-1.7 s for the three
-gcc builds, against native runs of only 7-19 s.
-
-The reason the tool is slower on these four is that the stack-fold
-optimization, which produces our bzip2 result, finds no sites in them: they
-are compiled with -O2 and do not contain the repeated stack-reload pattern
-it targets (bzip2 is compiled with -O0). Without that saving, nothing
-offsets the fixed cost of the profiling instrumentation and of the TC -> TC2
-translation, and these binaries are far larger than bzip2 (hundreds of
-thousands to millions of translated instructions). Our benchmark for the
-"more than 5%" requirement is therefore bzip2.
-
-
-A BUG WE FOUND AND FIXED: TRANSLATION-CACHE PLACEMENT VS. THE HEAP
-------------------------------------------------------------------
-While testing the statically linked benchmarks (sgcc_base and sgcc_peak) we
-hit an intermittent segmentation fault: roughly a third to a half of all
-runs died, always at the same address (0x830), while the runs that did
-complete always produced correct output. The same crash also happens with
-the provided bprofile-with-gearing tool, so it was not caused by our
-optimizations.
-
-How we found it: we installed a SIGSEGV handler in the tool that maps the
-faulting address, and every return address on the stack, back to the
-original instruction it was translated from. That showed the crash inside
-memcpy, called during glibc's start-up (before main) from the routine that
-sets up thread-local storage. The registers showed that the destination
-pointer had been computed from an sbrk() return value of -1, i.e. the heap
-could not be extended.
-
-The cause is the memory placement in allocate_and_init_memory(). It asked
-for one large mapping to hold TC and TC2 at the first free address above
-the end of the code - which is exactly where the kernel starts the program
-break. The mapping therefore landed on top of the heap and every later
-brk() failed. A statically linked glibc calls sbrk() before main to
-allocate the thread-local storage block, so the failure produced a wild
-pointer and the crash. Dynamically linked programs set up their TLS through
-the dynamic loader with mmap, and malloc falls back to mmap when brk fails,
-which is why bzip2, cc1 and cpugcc_r_base never showed the problem.
-
-It looked random because of address-space layout randomization: whether our
-mapping lands on the break depends on where other mappings happen to be.
-With randomization disabled (setarch -R) the crash happened on every run,
-which is what let us debug it.
-
-The fix places the TC/TC2 mapping a heap-sized gap (1 GB, reduced
-automatically if it would not fit) above the end of the entire loaded
-image, while still keeping it within the +/-2 GB range required by the
-32-bit relative branches in the translated code (with the original
-first-fit search as a fallback). After the fix, the case that used to fail
-every time passes, and a validation sweep of 32 runs (sgcc_peak and
-sgcc_base 10 runs each with randomization and 3 each without, plus cc1 and
-cpugcc_r_base) had no crashes and byte-identical output in every run.
-
-We also fixed a smaller bug nearby: the routine that records a call/jump
-target lying outside the translated code (fix_direct_jmp_or_call_to_orig_addr)
-used the table index after incrementing the counter instead of before, so a
-target already in the table was never found again and every call site used
-up a new slot.
+FILES
+-----
+  project.so                    the compiled tool (top level of project.zip)
+  src/project.cpp               the tool's source
+  src/makefile, makefile.rules  the unmodified course makefiles
+  src/README.txt                this file
