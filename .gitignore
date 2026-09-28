@@ -8,3 +8,5 @@ edge-profile.csv
 project.zip
 submission/project.so
 bench_logs/
+c_nat.*
+c_tool.*
