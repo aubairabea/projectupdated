@@ -1,0 +1,11 @@
+round 1: IDENTICAL  8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r1_tool.bz2 8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r1_native.bz2  ERROR=0 TC2commit=1
+round 2: IDENTICAL  8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r2_tool.bz2 8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r2_native.bz2  ERROR=0 TC2commit=1
+round 3: IDENTICAL  8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r3_tool.bz2 8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r3_native.bz2  ERROR=0 TC2commit=1
+round 4: IDENTICAL  8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r4_tool.bz2 8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r4_native.bz2  ERROR=0 TC2commit=1
+round 5: IDENTICAL  8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r5_tool.bz2 8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r5_native.bz2  ERROR=0 TC2commit=1
+round 6: IDENTICAL  8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r6_tool.bz2 8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r6_native.bz2  ERROR=0 TC2commit=1
+round 7: IDENTICAL  8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r7_tool.bz2 8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r7_native.bz2  ERROR=0 TC2commit=1
+round 8: IDENTICAL  8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r8_tool.bz2 8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r8_native.bz2  ERROR=0 TC2commit=1
+round 9: IDENTICAL  8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r9_tool.bz2 8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r9_native.bz2  ERROR=0 TC2commit=1
+round 10: IDENTICAL  8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r10_tool.bz2 8722c10f2ac1dfde915e79b1943a27d5  docs/run10_toolfirst/r10_native.bz2  ERROR=0 TC2commit=1
+RUN10-DONE
