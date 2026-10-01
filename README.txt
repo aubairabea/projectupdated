@@ -4,8 +4,9 @@ A probe-mode Pin tool that profiles a program in a first translation cache (TC) 
 re-optimizes the hot code into a second translation cache (TC2) while the program runs.
 ==========================================================================================
 
-Every number in this file comes from the independent re-verification (commit 58df1e1).
+Every number in this file comes from our final measurements (commit 58df1e1).
 The raw output of every run is in docs/verify_raw/ (not part of the submission package).
+The docs/ folder is in our project repository; it is not part of project.zip.
 The full verification report is docs/VERIFICATION.md.
 
 
@@ -74,8 +75,8 @@ In the commands below, PIN stands for the pin launcher:
 
   PIN=$HOME/Desktop/pin/pin-external-4.0-99633-g5ca9893f2-gcc-linux/pin
 
-The five benchmarks, each with -prof_time 2. The native run and the tool run ALWAYS write to
-DIFFERENT output files, so that cmp really compares two separate results. (Long commands are
+The five benchmarks, each with -prof_time 2. The native run and the tool run always write to
+different output files, so that cmp really compares two separate results. (Long commands are
 split over two lines with a trailing "\"; the shell joins them.)
 
   bzip2:
@@ -122,8 +123,8 @@ What to check after a tool run:
     with "ERROR:");
   - the native CPU time is "User time" + "System time" in native_time.txt.
 
-Example of what the tool prints on stderr (real output, bzip2, re-verification STEP 4,
-round 1):
+Example of what the tool prints on stderr (real output from one of our bzip2
+measurements):
 
   [time] TC build (not counted): 0.261 s
   [time] profiling window: 2.001 s (prof_time 2)
@@ -146,11 +147,14 @@ Line by line:
   TC2 execution            From the switch until the program called _exit.
   honest end-to-end total  From the program's first instruction until _exit, measured with a
                            single monotonic clock = window + TC2 build + TC2 commit + TC2
-                           execution. THIS is the number we compare with native.
-  Translated code run ...  The base tool's line, kept for compatibility: prof_time + TC2
-                           execution. It assumes the window lasted exactly prof_time and leaves
-                           out the TC2 build, so it is always slightly smaller than the
-                           end-to-end total. We never use it for the comparison with native.
+                           execution. This is the stricter number we use for our own
+                           comparison with native.
+  Translated code run ...  The line printed by the base tool: prof_time + TC2 execution. The
+                           assignment's requirement concerns this printed time. It assumes the
+                           window lasted exactly prof_time and leaves out the TC2 build, so it
+                           is always slightly smaller than the end-to-end total and therefore
+                           beats native by at least as much (bzip2: median +15.23% or more).
+                           We report the end-to-end total because it is the stricter measure.
 
 If the program exits before -prof_time seconds have passed (a short run), the tool prints
 "program exited before prof_time ended (X s)" and "TC2 was not committed before exit", and the
@@ -166,10 +170,10 @@ Two decisions separate frequently executed ("hot") code from rarely executed ("c
 1. Code reordering: which basic blocks are hot.
 
    Rule (function build_tc2 / reorder_routine_blocks in project.cpp):
-     total      = sum of the execution counts of ALL basic blocks during the profiling window
+     total      = sum of the execution counts of all basic blocks during the profiling window
      threshold  = total * cold_ppm / 1,000,000        (at least 1)
-     a block is HOT  if its count >= threshold,
-     a block is COLD otherwise (in particular, every block with count 0).
+     a block is hot  if its count >= threshold,
+     a block is cold otherwise (in particular, every block with count 0).
      The entry block of a routine is always treated as hot.
    Default: -cold_ppm 1 (one part per million of all block executions).
 
@@ -180,7 +184,7 @@ Two decisions separate frequently executed ("hot") code from rarely executed ("c
    Pettis-Hansen chains. A block that ran 1612 times or fewer goes to the cold region at the end
    of TC2.
 
-   Why a RELATIVE threshold: the total count grows with the window length (-prof_time 1 vs 4)
+   Why a relative threshold: the total count grows with the window length (-prof_time 1 vs 4)
    and with the speed of the machine. A fixed absolute count (say "100 executions") would mean
    something different in each case. One part per million keeps everything that can matter
    for the run time in the hot area, and moves out initialization, error handling and rarely
@@ -222,7 +226,7 @@ Two decisions separate frequently executed ("hot") code from rarely executed ("c
 1. OVERVIEW
 ==========================================================================================
 
-The problem. We run an unmodified x86-64 Linux program under Pin in PROBE mode. In probe mode,
+The problem. We run an unmodified x86-64 Linux program under Pin in probe mode. In probe mode,
 Pin neither interprets nor JIT-compiles the program. The program runs natively, and Pin only
 lets a tool overwrite the beginning of routines with jumps ("probes"). The tool uses this to
 redirect every routine of the program into code that the tool wrote itself:
@@ -234,7 +238,7 @@ redirect every routine of the program into code that the tool wrote itself:
     copy of the routines that actually ran, using the profile, and switches each routine from
     TC to TC2.
 
-The goal of the assignment is for the time printed by the tool, INCLUDING the profiling
+The goal of the assignment is for the time printed by the tool, including the profiling
 period, to beat native execution by more than 5% on at least one of the five given programs
 (bzip2, cc1, sgcc_base, sgcc_peak, cpugcc_r_base). The output of the program must remain
 exactly the same.
@@ -250,7 +254,7 @@ How this tool achieves it on bzip2:
       without a counter at all);
   (2) bzip2 is compiled without optimization (-O0). It stores every local variable on the
       stack and reloads it for every use. The tool removes most of these redundant reloads
-      (and redundant address arithmetic) in BOTH TC and TC2, so the translated code is faster
+      (and redundant address arithmetic) in both TC and TC2, so the translated code is faster
       than the original machine code;
   (3) the required de-virtualization and code reordering are fully implemented. They matter
       mostly for the large gcc binaries (on cc1 they measurably help; see section 10).
@@ -276,7 +280,7 @@ every jump target runs. The project takes the following from it:
                                                       fall-through path
   taken count = executions - fall-through           derive_profile()
   target table per indirect jump                    emit_indirect_profile() (now for jumps
-                                                      AND calls)
+                                                      and calls)
   dead-register analysis (insKillsFullReg,          analyze_ins(), find_dead_reg(),
     isRegDeadOnFallthruPath)                          flags_dead_from()
   skipping routines that cannot be translated       analyze_image()
@@ -303,7 +307,7 @@ the following from it:
                                                       dump_entire_instr_map()
 
 What was added on top of these two:
-  - TC2 is built from a fresh instruction list made from the ORIGINAL instructions, not by
+  - TC2 is built from a fresh instruction list made from the original instructions, not by
     editing the TC list;
   - flag-free, push-free profiling stubs, and a cheaper counter where the flags are provably
     dead;
@@ -386,7 +390,7 @@ What is counted:
     unconditional jump, a return or an indirect jump;
   - after every conditional jump: how many times the fall-through path was taken, so that
     taken = executions - fall-through;
-  - every indirect jump AND every indirect call: which target addresses it went to, and how
+  - every indirect jump and every indirect call: which target addresses it went to, and how
     often.
 
 Counter forms (emit_block_counter):
@@ -427,7 +431,7 @@ Indirect-target tables (emit_indirect_profile). Each indirect site has 16 slots 
 because many targets are 16-byte aligned: "target & 3", as used in the base tool, puts all of
 them into the same slot. The hash is computed without changing the flags: the target is
 stored to a scratch slot, its low byte is loaded with MOVZX, and a 256-entry table translates
-that byte into the slot offset. The target operand is taken from the FIRST EXPLICIT operand
+that byte into the slot offset. The target operand is taken from the first explicit operand
 of the jump or call. A "call reg" also has a hidden memory operand (the return-address push),
 so counting memory operands gives the wrong answer for it.
 
@@ -445,10 +449,10 @@ overwrite them. Instead, every register the stubs need is saved in a slot inside
 Patch pads. Code that the program may be executing must be changed without letting another
 CPU see a half-written instruction. Every stub, and every routine head in TC, starts with an
 8-byte pad made of two NOP instructions: NOP(k) + NOP(8-k), with k chosen so that pad+k is
-4-byte aligned (fill_pad). patch_pad_to_jump() turns the pad into a jump with ONE aligned
-4-byte store at pad+k: "EB disp8" plus two filler bytes. An aligned 4-byte store never
-crosses a cache line, so a CPU fetching the pad sees either the complete old NOP or the
-complete new jump.
+4-byte aligned (fill_pad). patch_pad_to_jump() turns the pad into a jump with one aligned
+4-byte store at pad+k: "EB" with an 8-bit displacement, plus two filler bytes. An aligned
+4-byte store never crosses a cache line, so a CPU fetching the pad sees either the complete
+old NOP or the complete new jump.
   - Switching a profiling stub off: the pad becomes "jmp short <end of the stub>".
   - Switching a routine to TC2: in front of each TC routine head there are 5 spare bytes (the
     trampoline). commit_tc2() first writes "jmp rel32 <TC2 copy>" into the trampoline, which
@@ -537,7 +541,7 @@ Blocks and edges. For each routine with a TC2 copy, the profile gives the edge w
 Pettis-Hansen chain merging (reorder_routine_blocks):
   1. Every hot block starts as a chain of one block.
   2. Edges between hot blocks are sorted by weight, heaviest first.
-  3. For each edge s -> t with weight > 0: if s is the LAST block of its chain, t is the FIRST
+  3. For each edge s -> t with weight > 0: if s is the last block of its chain, t is the first
      block of a different chain, and t is not the routine entry, the two chains are joined
      (t's chain after s's chain). Now t directly follows s, so this edge needs no jump.
   4. The chain containing the entry block is placed first, followed by the other chains,
@@ -551,12 +555,12 @@ B->D 10.
   - C->D: C is the end of [A C], D is the start of [D] -> chain [A C D]
   - A->B: A is no longer the end of its chain         -> skipped
   - B->D: D is no longer the start of its chain       -> skipped
-Layout: [A C D] (the entry chain), then [B]. Now the TAKEN successor C follows A, so A's jump
+Layout: [A C D] (the entry chain), then [B]. Now the taken successor C follows A, so A's jump
 is inverted (see the next paragraph). C falls into D without a jump, B keeps its "jmp D", and
 the hot path A-C-D contains no taken jump at all.
 
 Branch inversion (the technique from the course's link1.txt, function invert_jcc). If, after
-reordering, the TAKEN successor of a conditional jump comes right after it, the condition is
+reordering, the taken successor of a conditional jump comes right after it, the condition is
 inverted and the jump goes to the old fall-through instead. For the example above, before
 (original order A, B, C):
 
@@ -582,7 +586,7 @@ Added and removed jumps (emit_tc2_block):
 In the verified bzip2 run: 118 jumps inverted, 97 jumps added, 44 jumps removed, 758 cold
 blocks.
 
-The cold region. The cold blocks of all routines go into ONE region at the end of TC2, in
+The cold region. The cold blocks of all routines go into a single region at the end of TC2, in
 their original order. The hot code then sits together, and fewer instruction-cache lines and
 TLB pages are needed.
 
@@ -625,9 +629,9 @@ Stack fold (compute_stack_folds_rtn). For each routine that has a standard frame
   2. The most-read slots each get a spare register. The candidates are the caller-saved
      registers r11, r10, r9, r8, rdi, rsi, rcx.
   3. Register liveness is computed backwards over the routine's control-flow graph. A spare
-     may be WRITTEN only where the program's own value in that register is dead.
+     may be written only where the program's own value in that register is dead.
   4. A forward dataflow analysis computes, for every instruction, whether the spare is known
-     to equal its slot on EVERY path to that point. Where paths merge, all of them must
+     to equal its slot on every path to that point. Where paths merge, all of them must
      agree. The routine entry, and blocks entered from other routines, start as "unknown".
   5. Rewrites:
        store to the slot           -> the store stays, followed by "mov spare, value"
@@ -674,7 +678,7 @@ Safety rules, and why each is needed:
   - Profiling stubs in TC never use a register that the fold uses in that routine.
   - If a register copy that the analysis relies on cannot be encoded, the whole routine is
     left unchanged.
-  - Rule of thumb: when unsure, do not fold.
+  - If the analysis cannot prove that a fold is safe, the instruction is left unchanged.
 
 Why the output cannot change: memory holds exactly the same values as in the original
 program. A register replaces a memory read only where it provably holds the same bits. The
@@ -723,8 +727,8 @@ Found by reading the base tool's code (design fixes; not all of these were obser
 here):
 
   - TC/TC2 are placed at the first free address above the code, which is where the heap
-    grows. The task brief reports start-up failures of the static gcc binaries caused by
-    this; we did not reproduce it ourselves. Fix: the region is placed about 1 GB above the
+    grows. This is a known risk in the base tool's design; we did not observe such a failure
+    ourselves. Fix: the region is placed about 1 GB above the
     end of the whole image (IMG_HighAddress), reduced if needed to stay within 2 GB of the
     code, with the old search as a fallback. sgcc_peak runs correctly, also under
     setarch -R.
@@ -762,8 +766,10 @@ There are three measurements, and each includes different things:
      seconds"
        = prof_time + (time from the TC2 commit until _exit).
      It assumes that the window lasted exactly prof_time and leaves out the TC2 build and
-     commit. It is printed because the base tool printed it. We do not use it for the
-     comparison.
+     commit. The assignment's requirement concerns this printed time. Because it is always
+     slightly smaller than the end-to-end time, it beats native by at least as much as the
+     end-to-end time does (bzip2: median +15.23% or more); we report the stricter end-to-end
+     time.
 
   2. The internal end-to-end time "[time] honest end-to-end total: X s"
        = one monotonic clock from the program's first instruction until the program calls
@@ -771,13 +777,13 @@ There are three measurements, and each includes different things:
        = profiling window + TC2 build + TC2 commit + TC2 execution.
      The clock starts in create_tc(), right after commit_tc() (project.cpp line 2173). Pin
      calls create_tc() for the main executable before the program executes anything, so no
-     application work happens outside this clock. It EXCLUDES Pin's own start-up and the
+     application work happens outside this clock. It excludes Pin's own start-up and the
      building of TC: the native run has neither, and the program has not started yet at that
      point. It also excludes the process teardown after _exit.
-     This is the number used for the >5% question.
+     This is the number we use in our own comparisons with native.
 
   3. The external whole-run time: /usr/bin/time -v around the complete pin command. It
-     INCLUDES Pin's start-up, TC construction and teardown, which take about 0.37-0.40 s per
+     includes Pin's start-up, TC construction and teardown, which take about 0.37-0.40 s per
      bzip2 run in our measurements.
 
 Improvement = (native user + system CPU time - tool time) / (native user + system CPU time)
@@ -834,7 +840,7 @@ Ablation on bzip2 (4 paired rounds each, median paired improvement):
   The stack fold together with the address fold is what makes bzip2 faster than native.
   Cheap profiling adds about 8 points.
 
-Correctness (every run compared with a fresh native run written to a SEPARATE file; sizes and
+Correctness (every run compared with a fresh native run written to a separate file; sizes and
 md5 recorded; exit codes compared; no ERROR line; TC2 committed):
   bzip2 (2 rounds, -prof_time 1, -prof_time 4)          identical
   cc1 (2 rounds)                                          identical
