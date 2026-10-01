@@ -1,0 +1,11 @@
+[time] TC build (not counted): 0.138 s
+[time] profiling window: 2.002 s (prof_time 2)
+[time] TC2 build: 0.004 s
+[time] TC2 commit: 0.000 s
+[time] TC2 execution: 1.598 s
+[time] honest end-to-end total: 3.605 s
+ Translated code run (including profiling) took: 3.598 seconds
+
+real	0m3.870s
+user	0m3.726s
+sys	0m0.275s
