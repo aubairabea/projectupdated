@@ -1,0 +1,5 @@
+[time] TC build (not counted): 0.219 s
+[time] profiling window: program exited before prof_time ended (0.439 s)
+[time] TC2 was not committed before exit
+[time] honest end-to-end total: 0.439 s
+ Translated code run (including profiling) took: 0.439 seconds

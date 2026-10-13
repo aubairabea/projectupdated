@@ -1,0 +1,20 @@
+# Found dynamic strtab: 5 offset 1184 size 234
+# Found strtab: 29 offset 24952 size 2939
+# Found dynamic symtab: 4 offset 728 size 456
+# Found symtab: 28 offset 20200 size 4752
+# SECTION 10                     .init addr 400768 offset 768 size 24
+
+SYM _init:
+XDIS 400768: BINARY    BASE   4883EC08                 sub rsp, 0x8
+XDIS 40076c: CALL      BASE   E82B010000               call 0x40089c
+XDIS 400771: CALL      BASE   E88A010000               call 0x400900
+XDIS 400776: CALL      BASE   E8851E0000               call 0x402600
+XDIS 40077b: BINARY    BASE   4883C408                 add rsp, 0x8
+XDIS 40077f: RET       BASE   C3                       ret 
+# end of text section.
+# Errors: 0
+# SECTION 11                      .plt addr 400780 offset 780 size 240
+XDIS 400780: PUSH      BASE   FF35823A2000             push qword ptr [rip+0x203a82]
+XDIS 400786: UNCOND_BR BASE   FF25843A2000             jmp qword ptr [rip+0x203a84]
+XDIS 40078c: WIDENOP   BASE   0F1F4000                 nop dword ptr [rax], eax
+XDIS 40

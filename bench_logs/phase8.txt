@@ -1,0 +1,72 @@
+=== correctness ===
+bzip2  rc=0 SAME errors=0
+bzip2  rc=0 SAME errors=0
+bzip2  rc=0 SAME errors=0
+bzip2  rc=0 SAME errors=0
+bzip2  rc=0 SAME errors=0
+cc1  rc=0 SAME errors=0
+cc1  rc=0 SAME errors=0
+cc1  rc=0 SAME errors=0
+sgcc_base  rc=0 SAME errors=0
+sgcc_base  rc=0 SAME errors=0
+sgcc_peak  rc=0 SAME errors=0
+sgcc_peak  rc=0 SAME errors=0
+cpugcc  rc=0 SAME errors=0
+cpugcc  rc=0 SAME errors=0
+setarch-R sgcc_peak  rc=0 SAME errors=0
+setarch-R sgcc_peak  rc=0 SAME errors=0
+=== stress (devirt_min_count 1, devirt_min_pct 50) ===
+bzip2 -devirt_min_count 1 -devirt_min_pct 50 rc=0 SAME errors=0
+cc1 -devirt_min_count 1 -devirt_min_pct 50 rc=0 SAME errors=0
+sgcc_peak -devirt_min_count 1 -devirt_min_pct 50 rc=0 SAME errors=0
+=== bzip2 modes / edge cases (includes a program exiting before prof_time) ===
+PASS compress-1
+PASS compress-9
+PASS decompress
+PASS test
+PASS empty
+PASS small1k
+PASS rand3m
+PASS stdin
+PASS decompress-stdin
+MODES: pass=9 fail=0
+=== round trip ===
+PASS tool-compress/native-decompress
+PASS native-compress/tool-decompress
+=== debug knobs ===
+knob -dump_tc rc=0 SAME stderr_lines=35948
+knob -dump_tc2 rc=0 SAME stderr_lines=5
+knob -dump_orig_code rc=0 SAME stderr_lines=24231
+knob -dump_prof rc=0 SAME stderr_lines=5
+knob -verbose rc=0 SAME stderr_lines=32
+knob -dump_tc2 -dump_prof (long) rc=0 SAME stderr_lines=12312 csv_lines=749
+=== performance: bzip2 10 paired rounds ===
+round 1: native_cpu=4.920 tool_e2e=4.669 compat=4.663 improvement=5.10% OK
+round 2: native_cpu=5.160 tool_e2e=4.222 compat=4.215 improvement=18.18% OK
+round 3: native_cpu=4.980 tool_e2e=4.268 compat=4.262 improvement=14.30% OK
+round 4: native_cpu=5.010 tool_e2e=4.375 compat=4.369 improvement=12.67% OK
+round 5: native_cpu=4.790 tool_e2e=4.198 compat=4.190 improvement=12.36% OK
+round 6: native_cpu=4.850 tool_e2e=4.055 compat=4.051 improvement=16.39% OK
+round 7: native_cpu=4.800 tool_e2e=4.300 compat=4.295 improvement=10.42% OK
+round 8: native_cpu=5.960 tool_e2e=4.592 compat=4.586 improvement=22.95% OK
+round 9: native_cpu=5.210 tool_e2e=4.274 compat=4.268 improvement=17.97% OK
+round 10: native_cpu=4.960 tool_e2e=4.489 compat=4.483 improvement=9.50% OK
+SUMMARY bzip2 rounds=10 ok=10 fails=0 extra='' median_native=4.970 median_tool=4.287 median_improvement=13.485% worst_improvement=5.10%
+=== ablation: bzip2 4 paired rounds each ===
+SUMMARY bzip2 rounds=4 ok=4 fails=0 extra='' median_native=5.040 median_tool=4.189 median_improvement=16.270% worst_improvement=14.29%
+SUMMARY bzip2 rounds=4 ok=4 fails=0 extra='-no_stackfold' median_native=4.900 median_tool=5.329 median_improvement=-9.425% worst_improvement=-10.81%
+SUMMARY bzip2 rounds=4 ok=4 fails=0 extra='-no_addrfold' median_native=5.075 median_tool=4.883 median_improvement=0.710% worst_improvement=-2.72%
+SUMMARY bzip2 rounds=4 ok=4 fails=0 extra='-no_cheap_prof -no_sparse_prof' median_native=5.150 median_tool=4.650 median_improvement=6.885% worst_improvement=-1.21%
+SUMMARY bzip2 rounds=4 ok=4 fails=0 extra='-no_devirt' median_native=6.720 median_tool=5.268 median_improvement=26.525% worst_improvement=-8.28%
+SUMMARY bzip2 rounds=4 ok=4 fails=0 extra='-no_reorder' median_native=5.035 median_tool=4.192 median_improvement=15.970% worst_improvement=-60.83%
+SUMMARY bzip2 rounds=4 ok=4 fails=0 extra='-no_stackfold -no_cheap_prof -no_sparse_prof -no_devirt -no_reorder' median_native=5.330 median_tool=5.478 median_improvement=-7.045% worst_improvement=-15.01%
+=== cc1 3 paired rounds ===
+SUMMARY cc1 rounds=3 ok=3 fails=0 extra='' median_native=34.320 median_tool=42.195 median_improvement=-24.65% worst_improvement=-26.14%
+SUMMARY cc1 rounds=3 ok=3 fails=0 extra='-no_devirt' median_native=34.330 median_tool=39.334 median_improvement=-17.00% worst_improvement=-21.99%
+SUMMARY cc1 rounds=3 ok=3 fails=0 extra='-no_reorder' median_native=30.080 median_tool=29.821 median_improvement=-16.13% worst_improvement=-22.08%
+SUMMARY cc1 rounds=3 ok=3 fails=0 extra='-no_devirt -no_reorder' median_native=27.390 median_tool=28.361 median_improvement=-3.55% worst_improvement=-35.12%
+=== other gcc binaries, 1 paired round ===
+SUMMARY sgcc_base rounds=1 ok=1 fails=0 extra='' median_native=10.140 median_tool=12.153 median_improvement=-19.85% worst_improvement=-19.85%
+SUMMARY sgcc_peak rounds=1 ok=1 fails=0 extra='' median_native=8.900 median_tool=12.545 median_improvement=-40.96% worst_improvement=-40.96%
+SUMMARY cpugcc rounds=1 ok=1 fails=0 extra='' median_native=10.270 median_tool=12.655 median_improvement=-23.22% worst_improvement=-23.22%
+PHASE8-DONE

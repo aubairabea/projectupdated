@@ -1,0 +1,337 @@
+ allocated memory at: 0x41c000
+after memory allocation
+after identifying candidate routines
+after chaining all branch targets
+after setting initial estimated new ins addrs in the TC
+after fixing instructions displacements
+after write all new instructions to memory tc
+after commit of translated routines from orig code to TC
+ create_tc took: 0.299759 seconds
+ prof time: 2 sec
+disabling profile gathering
+after modifying instr_map
+after chaining all branch targets
+after setting initial estimated new ins addrs in tc2
+after fixing instructions displacements
+after write all new instructions to tc2
+ committing rtN from: 0x41c000 to: 0x518e1a size: 5
+0x41c000: jmp 0x518e1a
+ committing rtN from: 0x41c0ea to: 0x518ee8 size: 5
+0x41c0ea: jmp 0x518ee8
+ committing rtN from: 0x41c1a6 to: 0x518f93 size: 5
+0x41c1a6: jmp 0x518f93
+ committing rtN from: 0x41c293 to: 0x51906e size: 5
+0x41c293: jmp 0x51906e
+ committing rtN from: 0x41c380 to: 0x519149 size: 5
+0x41c380: jmp 0x519149
+ committing rtN from: 0x41c46d to: 0x519224 size: 5
+0x41c46d: jmp 0x519224
+ committing rtN from: 0x41c55a to: 0x5192ff size: 5
+0x41c55a: jmp 0x5192ff
+ committing rtN from: 0x41c647 to: 0x5193da size: 5
+0x41c647: jmp 0x5193da
+ committing rtN from: 0x41c734 to: 0x5194b5 size: 5
+0x41c734: jmp 0x5194b5
+ committing rtN from: 0x41c821 to: 0x519590 size: 5
+0x41c821: jmp 0x519590
+ committing rtN from: 0x41c90e to: 0x51966b size: 5
+0x41c90e: jmp 0x51966b
+ committing rtN from: 0x41c9fb to: 0x519746 size: 5
+0x41c9fb: jmp 0x519746
+ committing rtN from: 0x41cae8 to: 0x519821 size: 5
+0x41cae8: jmp 0x519821
+ committing rtN from: 0x41cbd5 to: 0x5198fc size: 5
+0x41cbd5: jmp 0x5198fc
+ committing rtN from: 0x41ccc2 to: 0x5199d7 size: 5
+0x41ccc2: jmp 0x5199d7
+ committing rtN from: 0x41cdaf to: 0x519ab2 size: 5
+0x41cdaf: jmp 0x519ab2
+ committing rtN from: 0x41ce9c to: 0x519b8d size: 5
+0x41ce9c: jmp 0x519b8d
+ committing rtN from: 0x41cf89 to: 0x519c68 size: 5
+0x41cf89: jmp 0x519c68
+ committing rtN from: 0x41d076 to: 0x519d43 size: 5
+0x41d076: jmp 0x519d43
+ committing rtN from: 0x41d163 to: 0x519e1e size: 5
+0x41d163: jmp 0x519e1e
+ committing rtN from: 0x41d250 to: 0x519ef9 size: 5
+0x41d250: jmp 0x519ef9
+ committing rtN from: 0x41d33d to: 0x519fd4 size: 5
+0x41d33d: jmp 0x519fd4
+ committing rtN from: 0x41d42a to: 0x51a0af size: 5
+0x41d42a: jmp 0x51a0af
+ committing rtN from: 0x41d517 to: 0x51a18a size: 5
+0x41d517: jmp 0x51a18a
+ committing rtN from: 0x41d604 to: 0x51a265 size: 5
+0x41d604: jmp 0x51a265
+ committing rtN from: 0x41d6f1 to: 0x51a340 size: 5
+0x41d6f1: jmp 0x51a340
+ committing rtN from: 0x41d7de to: 0x51a41b size: 5
+0x41d7de: jmp 0x51a41b
+ committing rtN from: 0x41d8cb to: 0x51a4f6 size: 5
+0x41d8cb: jmp 0x51a4f6
+ committing rtN from: 0x41d9b8 to: 0x51a5d1 size: 5
+0x41d9b8: jmp 0x51a5d1
+ committing rtN from: 0x41daa5 to: 0x51a6ac size: 5
+0x41daa5: jmp 0x51a6ac
+ committing rtN from: 0x41db92 to: 0x51a787 size: 5
+0x41db92: jmp 0x51a787
+ committing rtN from: 0x41dc7f to: 0x51a862 size: 5
+0x41dc7f: jmp 0x51a862
+ committing rtN from: 0x41dd6c to: 0x51a93d size: 5
+0x41dd6c: jmp 0x51a93d
+ committing rtN from: 0x41de59 to: 0x51aa18 size: 5
+0x41de59: jmp 0x51aa18
+ committing rtN from: 0x41df46 to: 0x51aaf3 size: 5
+0x41df46: jmp 0x51aaf3
+ committing rtN from: 0x41e033 to: 0x51abce size: 5
+0x41e033: jmp 0x51abce
+ committing rtN from: 0x41e120 to: 0x51aca9 size: 5
+0x41e120: jmp 0x51aca9
+ committing rtN from: 0x41e20d to: 0x51ad84 size: 5
+0x41e20d: jmp 0x51ad84
+ committing rtN from: 0x41e2fa to: 0x51ae5f size: 5
+0x41e2fa: jmp 0x51ae5f
+ committing rtN from: 0x41e3e7 to: 0x51af3a size: 5
+0x41e3e7: jmp 0x51af3a
+ committing rtN from: 0x41e4d4 to: 0x51b015 size: 5
+0x41e4d4: jmp 0x51b015
+ committing rtN from: 0x41e5c1 to: 0x51b0f0 size: 5
+0x41e5c1: jmp 0x51b0f0
+ committing rtN from: 0x41e6ae to: 0x51b1cb size: 5
+0x41e6ae: jmp 0x51b1cb
+ committing rtN from: 0x41e6e6 to: 0x51b1f5 size: 5
+0x41e6e6: jmp 0x51b1f5
+ committing rtN from: 0x41e8cb to: 0x51b3ad size: 5
+0x41e8cb: jmp 0x51b3ad
+ committing rtN from: 0x41eaaf to: 0x51b564 size: 5
+0x41eaaf: jmp 0x51b564
+ committing rtN from: 0x41eb9b to: 0x51b634 size: 5
+0x41eb9b: jmp 0x51b634
+ committing rtN from: 0x41ed32 to: 0x51b79a size: 5
+0x41ed32: jmp 0x51b79a
+ committing rtN from: 0x41f436 to: 0x51be14 size: 5
+0x41f436: jmp 0x51be14
+ committing rtN from: 0x4205a5 to: 0x51ce5b size: 5
+0x4205a5: jmp 0x51ce5b
+ committing rtN from: 0x42258a to: 0x51ebdb size: 5
+0x42258a: jmp 0x51ebdb
+ committing rtN from: 0x423fbc to: 0x52042a size: 5
+0x423fbc: jmp 0x52042a
+ committing rtN from: 0x424bc6 to: 0x520f50 size: 5
+0x424bc6: jmp 0x520f50
+ committing rtN from: 0x424de9 to: 0x52113e size: 5
+0x424de9: jmp 0x52113e
+ committing rtN from: 0x426212 to: 0x522430 size: 5
+0x426212: jmp 0x522430
+ committing rtN from: 0x4289f8 to: 0x52497a size: 5
+0x4289f8: jmp 0x52497a
+ committing rtN from: 0x42933e to: 0x525204 size: 5
+0x42933e: jmp 0x525204
+ committing rtN from: 0x4293f8 to: 0x5252b1 size: 5
+0x4293f8: jmp 0x5252b1
+ committing rtN from: 0x42957a to: 0x525412 size: 5
+0x42957a: jmp 0x525412
+ committing rtN from: 0x429783 to: 0x5255e6 size: 5
+0x429783: jmp 0x5255e6
+ committing rtN from: 0x429907 to: 0x525749 size: 5
+0x429907: jmp 0x525749
+ committing rtN from: 0x429b40 to: 0x525952 size: 5
+0x429b40: jmp 0x525952
+ committing rtN from: 0x429c84 to: 0x525a75 size: 5
+0x429c84: jmp 0x525a75
+ committing rtN from: 0x42ad6b to: 0x526a0e size: 5
+0x42ad6b: jmp 0x526a0e
+ committing rtN from: 0x42c636 to: 0x5280d6 size: 5
+0x42c636: jmp 0x5280d6
+ committing rtN from: 0x42d656 to: 0x528fb2 size: 5
+0x42d656: jmp 0x528fb2
+ committing rtN from: 0x42d743 to: 0x529083 size: 5
+0x42d743: jmp 0x529083
+ committing rtN from: 0x42d842 to: 0x529166 size: 5
+0x42d842: jmp 0x529166
+ committing rtN from: 0x42d946 to: 0x52924e size: 5
+0x42d946: jmp 0x52924e
+ committing rtN from: 0x42e018 to: 0x52989b size: 5
+0x42e018: jmp 0x52989b
+ committing rtN from: 0x42e05f to: 0x5298da size: 5
+0x42e05f: jmp 0x5298da
+ committing rtN from: 0x42e09f to: 0x529912 size: 5
+0x42e09f: jmp 0x529912
+ committing rtN from: 0x42e190 to: 0x5299ec size: 5
+0x42e190: jmp 0x5299ec
+ committing rtN from: 0x42e1da to: 0x529a2e size: 5
+0x42e1da: jmp 0x529a2e
+ committing rtN from: 0x42e217 to: 0x529a63 size: 5
+0x42e217: jmp 0x529a63
+ committing rtN from: 0x42e402 to: 0x529c23 size: 5
+0x42e402: jmp 0x529c23
+ committing rtN from: 0x42e43d to: 0x529c56 size: 5
+0x42e43d: jmp 0x529c56
+ committing rtN from: 0x42e47e to: 0x529c8f size: 5
+0x42e47e: jmp 0x529c8f
+ committing rtN from: 0x42e686 to: 0x529e67 size: 5
+0x42e686: jmp 0x529e67
+ committing rtN from: 0x42e7da to: 0x529f9f size: 5
+0x42e7da: jmp 0x529f9f
+ committing rtN from: 0x42e8ef to: 0x52a098 size: 5
+0x42e8ef: jmp 0x52a098
+ committing rtN from: 0x42eaf1 to: 0x52a26a size: 5
+0x42eaf1: jmp 0x52a26a
+ committing rtN from: 0x42ecea to: 0x52a433 size: 5
+0x42ecea: jmp 0x52a433
+ committing rtN from: 0x42ee35 to: 0x52a55d size: 5
+0x42ee35: jmp 0x52a55d
+ committing rtN from: 0x42ef32 to: 0x52a63e size: 5
+0x42ef32: jmp 0x52a63e
+ committing rtN from: 0x42f11d to: 0x52a7fe size: 5
+0x42f11d: jmp 0x52a7fe
+ committing rtN from: 0x42f165 to: 0x52a839 size: 5
+0x42f165: jmp 0x52a839
+ committing rtN from: 0x42f376 to: 0x52aa1a size: 5
+0x42f376: jmp 0x52aa1a
+ committing rtN from: 0x42f4f7 to: 0x52ab7a size: 5
+0x42f4f7: jmp 0x52ab7a
+ committing rtN from: 0x431443 to: 0x52c85b size: 5
+0x431443: jmp 0x52c85b
+ committing rtN from: 0x4336eb to: 0x52e84d size: 5
+0x4336eb: jmp 0x52e84d
+ committing rtN from: 0x434622 to: 0x52f64f size: 5
+0x434622: jmp 0x52f64f
+ committing rtN from: 0x434682 to: 0x52f6a2 size: 5
+0x434682: jmp 0x52f6a2
+ committing rtN from: 0x4346ee to: 0x52f701 size: 5
+0x4346ee: jmp 0x52f701
+ committing rtN from: 0x434759 to: 0x52f75f size: 5
+0x434759: jmp 0x52f75f
+ committing rtN from: 0x434857 to: 0x52f841 size: 5
+0x434857: jmp 0x52f841
+ committing rtN from: 0x4348c3 to: 0x52f8a0 size: 5
+0x4348c3: jmp 0x52f8a0
+ committing rtN from: 0x434b33 to: 0x52fadb size: 5
+0x434b33: jmp 0x52fadb
+ committing rtN from: 0x435218 to: 0x53012c size: 5
+0x435218: jmp 0x53012c
+ committing rtN from: 0x438e6b to: 0x5338b8 size: 5
+0x438e6b: jmp 0x5338b8
+ committing rtN from: 0x438f6a to: 0x5339a0 size: 5
+0x438f6a: jmp 0x5339a0
+ committing rtN from: 0x438fae to: 0x5339d7 size: 5
+0x438fae: jmp 0x5339d7
+ committing rtN from: 0x439014 to: 0x533a30 size: 5
+0x439014: jmp 0x533a30
+ committing rtN from: 0x439109 to: 0x533b09 size: 5
+0x439109: jmp 0x533b09
+ committing rtN from: 0x439284 to: 0x533c63 size: 5
+0x439284: jmp 0x533c63
+ committing rtN from: 0x4392dd to: 0x533caf size: 5
+0x4392dd: jmp 0x533caf
+ committing rtN from: 0x439476 to: 0x533e1d size: 5
+0x439476: jmp 0x533e1d
+ committing rtN from: 0x43a118 to: 0x5349cc size: 5
+0x43a118: jmp 0x5349cc
+ committing rtN from: 0x43a6aa to: 0x534f0a size: 5
+0x43a6aa: jmp 0x534f0a
+ committing rtN from: 0x43a7ae to: 0x534ff2 size: 5
+0x43a7ae: jmp 0x534ff2
+ committing rtN from: 0x43b60e to: 0x535d37 size: 5
+0x43b60e: jmp 0x535d37
+ committing rtN from: 0x43b93f to: 0x536024 size: 5
+0x43b93f: jmp 0x536024
+ committing rtN from: 0x43c2f1 to: 0x536901 size: 5
+0x43c2f1: jmp 0x536901
+ committing rtN from: 0x43d2be to: 0x53776d size: 5
+0x43d2be: jmp 0x53776d
+ committing rtN from: 0x43d7bd to: 0x537c00 size: 5
+0x43d7bd: jmp 0x537c00
+ committing rtN from: 0x43dea3 to: 0x538257 size: 5
+0x43dea3: jmp 0x538257
+ committing rtN from: 0x43fd9b to: 0x539f2a size: 5
+0x43fd9b: jmp 0x539f2a
+ committing rtN from: 0x43ff99 to: 0x53a0f8 size: 5
+0x43ff99: jmp 0x53a0f8
+ committing rtN from: 0x442016 to: 0x53bf77 size: 5
+0x442016: jmp 0x53bf77
+ committing rtN from: 0x442cb3 to: 0x53cb08 size: 5
+0x442cb3: jmp 0x53cb08
+ committing rtN from: 0x4431c4 to: 0x53cfad size: 5
+0x4431c4: jmp 0x53cfad
+ committing rtN from: 0x443308 to: 0x53d0d0 size: 5
+0x443308: jmp 0x53d0d0
+ committing rtN from: 0x444214 to: 0x53de8f size: 5
+0x444214: jmp 0x53de8f
+ committing rtN from: 0x445482 to: 0x53ef65 size: 5
+0x445482: jmp 0x53ef65
+ committing rtN from: 0x445504 to: 0x53efda size: 5
+0x445504: jmp 0x53efda
+ committing rtN from: 0x446ce7 to: 0x5405ad size: 5
+0x446ce7: jmp 0x5405ad
+ committing rtN from: 0x447dc5 to: 0x54151b size: 5
+0x447dc5: jmp 0x54151b
+ committing rtN from: 0x448461 to: 0x541b1e size: 5
+0x448461: jmp 0x541b1e
+ committing rtN from: 0x449ccc to: 0x54316a size: 5
+0x449ccc: jmp 0x54316a
+ committing rtN from: 0x44a535 to: 0x543912 size: 5
+0x44a535: jmp 0x543912
+ committing rtN from: 0x44ad10 to: 0x54403e size: 5
+0x44ad10: jmp 0x54403e
+ committing rtN from: 0x44b450 to: 0x5446de size: 5
+0x44b450: jmp 0x5446de
+ committing rtN from: 0x44b494 to: 0x544715 size: 5
+0x44b494: jmp 0x544715
+ committing rtN from: 0x44c30b to: 0x54545d size: 5
+0x44c30b: jmp 0x54545d
+ committing rtN from: 0x44c370 to: 0x5454b5 size: 5
+0x44c370: jmp 0x5454b5
+ committing rtN from: 0x44c3d2 to: 0x54550a size: 5
+0x44c3d2: jmp 0x54550a
+ committing rtN from: 0x44c634 to: 0x545732 size: 5
+0x44c634: jmp 0x545732
+ committing rtN from: 0x44c775 to: 0x545852 size: 5
+0x44c775: jmp 0x545852
+ committing rtN from: 0x44c7bd to: 0x54588d size: 5
+0x44c7bd: jmp 0x54588d
+ committing rtN from: 0x44cb3c to: 0x545bbe size: 5
+0x44cb3c: jmp 0x545bbe
+ committing rtN from: 0x44cc4c to: 0x545cb2 size: 5
+0x44cc4c: jmp 0x545cb2
+ committing rtN from: 0x44ccab to: 0x545d04 size: 5
+0x44ccab: jmp 0x545d04
+ committing rtN from: 0x44ce2d to: 0x545e65 size: 5
+0x44ce2d: jmp 0x545e65
+ committing rtN from: 0x44d004 to: 0x54601b size: 5
+0x44d004: jmp 0x54601b
+ committing rtN from: 0x44d0b2 to: 0x5460bc size: 5
+0x44d0b2: jmp 0x5460bc
+ committing rtN from: 0x44d113 to: 0x546110 size: 5
+0x44d113: jmp 0x546110
+ committing rtN from: 0x44d318 to: 0x5462e5 size: 5
+0x44d318: jmp 0x5462e5
+ committing rtN from: 0x44dfea to: 0x546ec7 size: 5
+0x44dfea: jmp 0x546ec7
+ committing rtN from: 0x456698 to: 0x54f039 size: 5
+0x456698: jmp 0x54f039
+ committing rtN from: 0x456df5 to: 0x54f720 size: 5
+0x456df5: jmp 0x54f720
+ committing rtN from: 0x457006 to: 0x54f901 size: 5
+0x457006: jmp 0x54f901
+ committing rtN from: 0x4669d0 to: 0x55e274 size: 5
+0x4669d0: jmp 0x55e274
+ committing rtN from: 0x467e12 to: 0x55f532 size: 5
+0x467e12: jmp 0x55f532
+ committing rtN from: 0x4680f8 to: 0x55f7d4 size: 5
+0x4680f8: jmp 0x55f7d4
+ committing rtN from: 0x468a6e to: 0x56008e size: 5
+0x468a6e: jmp 0x56008e
+ committing rtN from: 0x468c09 to: 0x5601fb size: 5
+0x468c09: jmp 0x5601fb
+ committing rtN from: 0x468c44 to: 0x560229 size: 5
+0x468c44: jmp 0x560229
+ committing rtN from: 0x468c8d to: 0x560265 size: 5
+0x468c8d: jmp 0x560265
+ committing rtN from: 0x468cd6 to: 0x5602a1 size: 5
+0x468cd6: jmp 0x5602a1
+after commit of translated routines from TC to TC2
+Reached _exit.
+ Translated code run (including profiling) took: 6.45556 seconds
