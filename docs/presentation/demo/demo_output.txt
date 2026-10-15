@@ -1,0 +1,46 @@
+
+  1/4  Native bzip2 (input-long.txt, 20.8 MB)  
+$ time ./bzip2 -k -f input-long.txt
+real 4.469 s   user 4.440 s   sys 0.024 s
+
+  2/4  The same command under our Pin tool (2 s of profiling, then TC2)  
+$ time pin -t obj-intel64/project.so -prof_time 2 -- ./bzip2 -k -f input-long.txt
+WARNING: profiling window overshoot: 2.32131 s for prof_time 2
+[time] TC build (not counted): 0.172 s
+[time] profiling window: 2.321 s (prof_time 2)
+[time] TC2 build: 0.005 s
+[time] TC2 commit: 0.000 s
+[time] TC2 execution: 1.221 s
+[time] honest end-to-end total: 3.546 s
+ Translated code run (including profiling) took: 3.221 seconds
+real 3.850 s   user 1.456 s   sys 2.548 s
+
+  3/4  Is the output byte-identical?  
+$ cmp native.bz2 tool.bz2
+444576 /tmp/demo_3238/native.bz2
+444576 /tmp/demo_3238/tool.bz2
+8722c10f2ac1dfde915e79b1943a27d5  /tmp/demo_3238/native.bz2
+8722c10f2ac1dfde915e79b1943a27d5  /tmp/demo_3238/tool.bz2
+IDENTICAL
+ERROR lines in the tool output: 0
+
+  4/4  Improvement vs native  
+native CPU (user+sys) = 4.440 + 0.024 = 4.464 s
+tool end-to-end       = 3.546 s   ->  (4.464 - 3.546) / 4.464 = 20.56%
+tool printed line     = 3.221 s   ->  vs native real 4.469 s: 27.93%
+
+  Extra: the base tool on cc1 (its indirect-jump stub changes the flags)  
+$ ./cc1 200.i -o cc1_native.s
+$ pin -t obj-intel64/bprofile-with-gearing.so -prof_time 2 -- ./cc1 200.i -o cc1_base.s
+ Translated code run (including profiling) took: 52.9781 seconds
+$ cmp cc1_native.s cc1_base.s
+/tmp/demo_3238/cc1_native.s /tmp/demo_3238/cc1_base.s differ: byte 6669460, line 339174
+base tool: DIFFERENT output
+
+  Extra: our tool on cc1  
+$ pin -t obj-intel64/project.so -prof_time 2 -- ./cc1 200.i -o cc1_ours.s
+[time] honest end-to-end total: 27.382 s
+ Translated code run (including profiling) took: 27.156 seconds
+$ cmp cc1_native.s cc1_ours.s
+our tool: IDENTICAL
+

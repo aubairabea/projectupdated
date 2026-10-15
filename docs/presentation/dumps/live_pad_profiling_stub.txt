@@ -1,0 +1,27 @@
+=== during the profiling window (t~1.0 s): bytes at 0x40689f8a: 00 00 e8 7d b5 00 00 0f 1f 00 0f 1f 44 00 00 48 89 05 60 60 f7 ff 48 8b 05 91 65 f7 ff
+    40689f8a:	00 00                	add    BYTE PTR [rax],al
+    40689f8c:	e8 7d b5 00 00       	call   0x4069550e
+    40689f91:	0f 1f 00             	nop    DWORD PTR [rax]
+    40689f94:	0f 1f 44 00 00       	nop    DWORD PTR [rax+rax*1+0x0]
+    40689f99:	48 89 05 60 60 f7 ff 	mov    QWORD PTR [rip+0xfffffffffff76060],rax        # 0x40600000
+    40689fa0:	48 8b 05 91 65 f7 ff 	mov    rax,QWORD PTR [rip+0xfffffffffff76591]        # 0x40600538
+=== after the TC2 commit (t~3.2 s): bytes at 0x40689f8a: 00 00 e8 7d b5 00 00 0f 1f 00 eb 23 cc cc 00 48 89 05 60 60 f7 ff 48 8b 05 91 65 f7 ff
+    40689f8a:	00 00                	add    BYTE PTR [rax],al
+    40689f8c:	e8 7d b5 00 00       	call   0x4069550e
+    40689f91:	0f 1f 00             	nop    DWORD PTR [rax]
+    40689f94:	eb 23                	jmp    0x40689fb9
+    40689f96:	cc                   	int3   
+    40689f97:	cc                   	int3   
+    40689f98:	00 48 89             	add    BYTE PTR [rax-0x77],cl
+    40689f9b:	05 60 60 f7 ff       	add    eax,0xfff76060
+    40689fa0:	48 8b 05 91 65 f7 ff 	mov    rax,QWORD PTR [rip+0xfffffffffff76591]        # 0x40600538
+=== tool stderr:
+WARNING: profiling window overshoot: 2.51608 s for prof_time 2
+[time] TC build (not counted): 0.170 s
+[time] profiling window: 2.516 s (prof_time 2)
+[time] TC2 build: 0.010 s
+[time] TC2 commit: 0.000 s
+[time] TC2 execution: 1.348 s
+[time] honest end-to-end total: 3.875 s
+ Translated code run (including profiling) took: 3.348 seconds
+output IDENTICAL
