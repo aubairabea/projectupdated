@@ -1,0 +1,20 @@
+{
+ "sites_profiled_by_tool": 935,
+ "tool_guarded_calls": 81,
+ "tool_guarded_jmps": 170,
+ "tool_guarded_targets": 449,
+ "executed_blocks_with_sites": 375,
+ "single_site": 372,
+ "multi_site_blocks": 3,
+ "multi_site_sites": 7,
+ "reasons_single_site": {
+  "targets cover less than 80% (too many different targets)": 18,
+  "GUARDED": 249,
+  "no eligible target (each below 10% or no TC2 copy)": 2,
+  "ran fewer than 100 times": 103
+ },
+ "reconstructed_guarded_single_site": {
+  "call": 79,
+  "jmp": 170
+ }
+}

@@ -1,0 +1,39 @@
+# command: $PIN -t obj-intel64/project.so -prof_time 2 -verbose -- ./bzip2 -c input-long.txt > tool.bz2
+fold fallbackSimpleSort: 42 loads; [rbp-40]/4->r9 [rbp-36]/4->r7 [rbp-32]/8->r6 [rbp-24]/8->r11 [rbp-12]/4->r1 [rbp-8]/4->r10 [rbp-4]/4->r8
+fold fallbackQSort3: 24 loads; [rbp-912]/8->r10 [rbp-904]/8->r11
+fold mainGtU: 207 loads; [rbp-40]/8->r6 [rbp-32]/8->r11 [rbp-24]/4->r8 [rbp-20]/4->r7 [rbp-10]/2->r1 [rbp-6]/1->r10 [rbp-5]/1->r9
+fold mainSimpleSort: 27 loads; [rbp-68]/4->r1 [rbp-64]/4->r6 [rbp-40]/8->r11 [rbp-24]/4->r7 [rbp-20]/4->r9 [rbp-8]/4->r10 [rbp-4]/4->r8
+fold mainQSort3: 31 loads; [rbp-1376]/8->r8 [rbp-1368]/8->r11 [rbp-1356]/4->r1 [rbp-1344]/4->r7 [rbp-1340]/4->r10 [rbp-1328]/4->r6 [rbp-1324]/4->r9
+fold mainSort: 39 loads; [rbp-3448]/4->r6 [rbp-3444]/4->r9 [rbp-3440]/8->r11 [rbp-3432]/8->r7 [rbp-3424]/8->r10 [rbp-3416]/8->r8
+fold BZ2_bzCompressInit: 47 loads; [rbp-36]/4->r8 [rbp-28]/4->r9 [rbp-24]/8->r10 [rbp-12]/4->r7 [rbp-8]/8->r11
+fold add_pair_to_block: 66 loads; [rbp-24]/8->r11 [rbp-5]/1->r10
+fold copy_input_until_stop: 67 loads; [rbp-40]/8->r11 [rbp-17]/1->r8 [rbp-16]/4->r10 [rbp-9]/1->r7 [rbp-8]/4->r9
+fold BZ2_bzCompress: 26 loads; [rbp-28]/4->r9 [rbp-24]/8->r10 [rbp-9]/1->r8 [rbp-8]/8->r11
+fold BZ2_bzDecompressInit: 23 loads; [rbp-32]/4->r9 [rbp-28]/4->r8 [rbp-24]/8->r11 [rbp-8]/8->r10
+fold unRLE_obuf_to_output_FAST: 196 loads; [rbp-72]/8->r11 [rbp-56]/4->r6 [rbp-48]/8->r8 [rbp-37]/1->r10 [rbp-36]/4->r1 [rbp-24]/4->r9 [rbp-16]/4->r7
+fold unRLE_obuf_to_output_SMALL: 237 loads; [rbp-24]/8->r11 [rbp-1]/1->r10
+fold BZ2_bzDecompress: 29 loads; [rbp-40]/8->r10 [rbp-20]/4->r9 [rbp-16]/8->r11
+fold BZ2_bzWriteOpen: 25 loads; [rbp-44]/4->r9 [rbp-40]/4->r8 [rbp-36]/4->r7 [rbp-32]/8->r6 [rbp-24]/8->r10 [rbp-12]/4->r1 [rbp-8]/8->r11
+fold BZ2_bzWrite: 27 loads; [rbp-60]/4->r9 [rbp-56]/8->r7 [rbp-40]/8->r10 [rbp-16]/4->r6 [rbp-12]/4->r8 [rbp-8]/8->r11
+fold BZ2_bzReadOpen: 32 loads; [rbp-52]/4->r9 [rbp-48]/8->r8 [rbp-40]/4->r7 [rbp-36]/4->r6 [rbp-32]/8->r1 [rbp-24]/8->r10 [rbp-8]/8->r11
+fold BZ2_bzRead: 34 loads; [rbp-44]/4->r8 [rbp-40]/8->r7 [rbp-24]/8->r10 [rbp-16]/4->r9 [rbp-8]/8->r11
+fold BZ2_bzReadGetUnused: 24 loads; [rbp-48]/8->r9 [rbp-40]/8->r8 [rbp-24]/8->r10 [rbp-8]/8->r11
+fold generateMTFValues: 22 loads; [rbp-344]/8->r11
+fold sendMTFValues: 307 loads; [rbp-248]/8->r11
+fold BZ2_compressBlock: 25 loads; [rbp-8]/8->r11
+fold BZ2_hbCreateDecodeTables: 43 loads; [rbp-56]/4->r9 [rbp-52]/4->r8 [rbp-48]/8->r1 [rbp-32]/8->r10 [rbp-24]/8->r7 [rbp-12]/4->r6 [rbp-8]/4->r11
+stack fold: 77 routines, 1914 loads replaced, 775 register syncs, 130 address folds
+region at 0x40600000 size 0x1159000 image 0x400000-0x41b944
+translated 118/118 routines, 23786 instructions, 2895 blocks, 28 indirect sites, TC 165634 bytes
+note: 4 routine entries were not probed
+TC2: 46 routines, 48003 bytes; devirt calls 0 jmps 0 targets 0; inverted 118 jmp added 97 removed 44 cold blocks 758
+committed 46 routines to TC2 (48003 bytes)
+[time] TC build (not counted): 0.183 s
+[time] profiling window: 2.002 s (prof_time 2)
+[time] TC2 build: 0.010 s
+[time] TC2 commit: 0.000 s
+[time] TC2 execution: 2.604 s
+[time] honest end-to-end total: 4.617 s
+ Translated code run (including profiling) took: 4.604 seconds
+# exit code: 0
+# output IDENTICAL to native (md5 8722c10f2ac1dfde915e79b1943a27d5)

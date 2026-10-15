@@ -1,6 +1,6 @@
 # Presentation brief
 
-One file with all presentation texts, in this order: KEY_NUMBERS, SCRIPT, CODE_WALKTHROUGH, BEFORE_AFTER, DIAGRAMS, QA, PROJECT_LOG.
+One file with all presentation texts, in this order: KEY_NUMBERS, SCRIPT, CODE_WALKTHROUGH, BEFORE_AFTER, DIAGRAMS, QA, PROJECT_LOG, STORY, HOTSPOT, FOLD_DECISIONS, DEVIRT_PRACTICE, PROFTIME, BASE_CHANGES, TRIED.
 Graphs are in graphs/, the demo in demo/, the raw dumps in dumps/ (not in the zip).
 
 
@@ -1912,3 +1912,291 @@ Built project.cpp anew on the base tool's TC/TC2 flow and exercise 4's profiling
 | No ExtTSP | the paper reports about 0.5-1% over Pettis-Hansen, below our measurement noise |
 | Report end-to-end time, not only the printed line | the printed line assumes a perfect window and omits the TC2 build; end-to-end is stricter |
 | One region ~1 GB above the image, within 2 GB | leaves room for the heap; rel32 and RIP-relative accesses still reach |
+
+<!-- ==================== STORY.md ==================== -->
+
+# The turning point: from "slower than native" to "faster than native"
+
+bzip2, improvement vs native CPU time (positive = faster than native, negative = slower). Development
+measurements are marked *(dev)*: they were made with our first scripts (paired rounds, native and tool pinned to
+CPU 0) and were not re-measured; the final numbers are from docs/VERIFICATION.md.
+
+## The path
+
+| stage | what was on | bzip2 vs native | rounds | source |
+|---|---|---|---|---|
+| provided base tool | profiling, plain TC2 | about -43% (6.46 s / 6.27 s vs 4.48 s / 4.37 s) | 2 *(dev)* | docs/PHASE_1.md |
+| Phases 2+3: our TC/TC2, flag-free profiling | profiling, plain TC2 | -13.3% | 3 *(dev)* | docs/PHASE_3.md |
+| Phase 5: **required optimizations** (de-virtualization + reordering) | + devirt, + reorder | -12.0% (without reordering: -10.6%) | 3 + 3 *(dev)* | docs/PHASE_5.md |
+| Phase 6: cheaper profiling | + cheap and sparse counters | -12.4% (same session without them: -16.9%) | 3 *(dev)* | docs/PHASE_6.md |
+| Phase 7a: stack fold, spares r10/r11 only | + stack fold | +4.9% | 3 *(dev)* | docs/PHASE_7.md |
+| Phase 7b: liveness-based spare registers | + more spares | +5.0% | 3 *(dev)* | docs/PHASE_7.md |
+| Phase 7c: address fold | + address fold | **+17.0%** (worst round +12.3%) | 3 *(dev)* | docs/PHASE_7.md |
+| Phase 8: audit | all on | +13.5% (worst +5.1%) | 10 *(dev)* | docs/JOURNAL.md (Phase 8 line) |
+| **final, verified** | all on | **+15.23% median, worst +5.02%, 10/10 rounds > 5%** | 10 | docs/VERIFICATION.md (STEP 4) |
+
+## What it shows
+- With only the required optimizations (de-virtualization and code reordering, Phase 5) bzip2 under our tool was
+  still about 12% slower than native *(dev)*. bzip2 has no hot indirect site (0 guarded in every bzip2 run, e.g.
+  docs/verify_raw/s8_evidence_default.txt), and reordering was within noise (docs/PHASE_5.md).
+- The sign changed with the stack fold (Phase 7a, -12.4% -> +4.9% *(dev)*), and the large step came with the address
+  fold (+5.0% -> +17.0% *(dev)*).
+- The final ablation confirms the same picture with the verified procedure (docs/VERIFICATION.md, STEP 8, 4 paired
+  rounds each, medians):
+
+| configuration (final, verified) | bzip2 vs native |
+|---|---|
+| everything on | +15.86% |
+| without the stack fold (devirt, reordering, cheap profiling still on) | -9.03% |
+| without the address fold | +2.73% |
+| without cheap/sparse profiling | +7.61% |
+| everything off | -14.49% |
+
+Note: the Phase 5 configuration (required optimizations without cheap profiling and without the stack fold) was not
+re-measured in the final verification; the closest verified configuration is "without the stack fold" (-9.03%),
+which still includes cheap/sparse profiling.
+
+<!-- ==================== HOTSPOT.md ==================== -->
+
+# Hotspot: where bzip2 executes its instructions
+
+One bzip2 run under our tool with `-prof_time 2 -verbose -dump_prof` (`data/bzip2_profile.txt`, output identical
+to native). Our tool's `-dump_prof` writes the execution count of every basic block during the profiling window
+(`data/bzip2_profile.edge-profile.csv`; the tool has no separate per-routine instruction report).
+`data/hotspot.py` turns this into executed instructions: each block's instructions are read from `objdump -d bzip2`
+(from the block start to its first jump/return, or to the next profiled block start), multiplied by the block's
+count, and summed per routine (`nm bzip2`). This covers the 2-second profiling window only.
+
+Total: 2.126e+10 instructions executed in the window.
+
+| rank | routine | executed instructions | share |
+|---|---|---|---|
+| 1 | mainGtU | 16,413,819,317 | 77.21% |
+| 2 | mainQSort3 | 1,831,026,515 | 8.61% |
+| 3 | mainSimpleSort | 947,982,845 | 4.46% |
+| 4 | mainSort | 869,473,591 | 4.09% |
+| 5 | copy_input_until_stop | 648,191,778 | 3.05% |
+| 6 | generateMTFValues | 207,212,861 | 0.97% |
+| 7 | sendMTFValues | 143,301,658 | 0.67% |
+| 8 | add_pair_to_block | 110,147,500 | 0.52% |
+| 9 | BZ2_blockSort | 43,972,217 | 0.21% |
+| 10 | bsW | 21,580,431 | 0.10% |
+| 11 | BZ2_hbMakeCodeLengths | 9,632,773 | 0.05% |
+| 12 | copy_output_until_stop | 7,687,470 | 0.04% |
+| 13 | mmed3 | 3,865,208 | 0.02% |
+| 14 | BZ2_hbAssignCodes | 319,972 | 0.00% |
+| 15 | BZ2_bzWrite | 128,819 | 0.00% |
+| | all other 31 routines | 256,900 | 0.00% |
+
+Graph: `graphs/hotspot_bzip2.png` (top 8 routines + the rest).
+
+<!-- ==================== FOLD_DECISIONS.md ==================== -->
+
+# Fold decisions: which stack slots got a register
+
+Sources:
+- The slot/size/spare-register decisions are the tool's own `-verbose` lines
+  (`fold <routine>: N loads; [rbp-X]/size->rK ...`) from `dumps/bzip2_tc_only.txt.gz` (run with `-verbose -dump_tc`).
+- Loads replaced per slot = reads of the slot in the original code (objdump of `bzip2`) minus reads of the slot
+  still present in that routine's TC copy (same dump). Computed by `data/fold_slots.py`, result in
+  `data/fold_slots_bzip2.json`. **Check:** the tool prints a `fold` line for the 23 routines with at least 20 replaced loads (77 routines
+  were folded in total); for all 23 the per-slot sum equals the tool's own number N (e.g. mainGtU 207 = 207).
+- Share of executed instructions: `data/hotspot_bzip2.json` (see HOTSPOT below).
+- bzip2's C source is not in our repository, so variables are described only by what the machine code shows
+  (which argument register is stored into the slot, how the value is used); otherwise the role is left blank.
+- A slot can be chosen and still replace 0 loads: the dataflow analysis found no read where the register is
+  provably up to date on every path (for example reads after a call, which invalidates all spares).
+
+## mainGtU (77.21% of executed instructions; tool: 207 loads replaced)
+
+| slot | size (bytes) | spare register | reads in original | reads left in TC | loads replaced | role (from the code) |
+|---|---|---|---|---|---|---|
+| [rbp-0x28] | 8 | rsi | 16 | 0 | 16 | 4th argument (stored from rcx); pointer to an array of 16-bit values |
+| [rbp-0x20] | 8 | r11 | 40 | 0 | 40 | 3rd argument (stored from rdx); pointer to a byte array |
+| [rbp-0x18] | 4 | r8 | 29 | 2 | 27 | 2nd argument (stored from esi); used as an index into the same byte array |
+| [rbp-0x14] | 4 | rdi | 29 | 1 | 28 | 1st argument (stored from edi); used as an index into the 3rd argument's byte array |
+| [rbp-0xa] | 2 | rcx | 16 | 0 | 16 | 16-bit value loaded from the 4th argument's array |
+| [rbp-0x6] | 1 | r10 | 40 | 0 | 40 | byte loaded from the byte array at the 2nd-argument index |
+| [rbp-0x5] | 1 | r9 | 40 | 0 | 40 | byte loaded from the byte array at the 1st-argument index |
+| **total** | | | 210 | 3 | **207** | |
+
+## mainQSort3 (8.61% of executed instructions; tool: 31 loads replaced)
+
+| slot | size (bytes) | spare register | reads in original | reads left in TC | loads replaced | role (from the code) |
+|---|---|---|---|---|---|---|
+| [rbp-0x560] | 8 | r8 | 6 | 6 | 0 | 2nd argument (stored from rsi) |
+| [rbp-0x558] | 8 | r11 | 26 | 7 | 19 | 1st argument (stored from rdi) |
+| [rbp-0x54c] | 4 | rcx | 4 | 4 | 0 |  |
+| [rbp-0x540] | 4 | rdi | 5 | 0 | 5 |  |
+| [rbp-0x53c] | 4 | r10 | 7 | 0 | 7 |  |
+| [rbp-0x530] | 4 | rsi | 5 | 5 | 0 |  |
+| [rbp-0x52c] | 4 | r9 | 7 | 7 | 0 |  |
+| **total** | | | 60 | 29 | **31** | |
+
+## mainSimpleSort (4.46% of executed instructions; tool: 27 loads replaced)
+
+| slot | size (bytes) | spare register | reads in original | reads left in TC | loads replaced | role (from the code) |
+|---|---|---|---|---|---|---|
+| [rbp-0x44] | 4 | rcx | 4 | 3 | 1 | 6th argument (stored from r9d) |
+| [rbp-0x40] | 4 | rsi | 5 | 4 | 1 | 5th argument (stored from r8d) |
+| [rbp-0x28] | 8 | r11 | 15 | 6 | 9 | 1st argument (stored from rdi) |
+| [rbp-0x18] | 4 | rdi | 6 | 6 | 0 |  |
+| [rbp-0x14] | 4 | r9 | 13 | 6 | 7 |  |
+| [rbp-0x8] | 4 | r10 | 15 | 12 | 3 |  |
+| [rbp-0x4] | 4 | r8 | 9 | 3 | 6 |  |
+| **total** | | | 67 | 40 | **27** | |
+
+## mainSort (4.09% of executed instructions; tool: 39 loads replaced)
+
+| slot | size (bytes) | spare register | reads in original | reads left in TC | loads replaced | role (from the code) |
+|---|---|---|---|---|---|---|
+| [rbp-0xd78] | 4 | rsi | 4 | 4 | 0 | 6th argument (stored from r9d) |
+| [rbp-0xd74] | 4 | r9 | 11 | 11 | 0 | 5th argument (stored from r8d) |
+| [rbp-0xd70] | 8 | r11 | 36 | 13 | 23 | 4th argument (stored from rcx) |
+| [rbp-0xd68] | 8 | rdi | 9 | 5 | 4 | 3rd argument (stored from rdx) |
+| [rbp-0xd60] | 8 | r10 | 17 | 5 | 12 | 2nd argument (stored from rsi) |
+| [rbp-0xd58] | 8 | r8 | 11 | 11 | 0 | 1st argument (stored from rdi) |
+| **total** | | | 88 | 49 | **39** | |
+
+## All routines with a `fold` line (tool total vs per-slot sum)
+
+| routine | tool: loads replaced | per-slot sum | slots |
+|---|---|---|---|
+| fallbackSimpleSort | 42 | 42 | 7 |
+| fallbackQSort3 | 24 | 24 | 2 |
+| mainGtU | 207 | 207 | 7 |
+| mainSimpleSort | 27 | 27 | 7 |
+| mainQSort3 | 31 | 31 | 7 |
+| mainSort | 39 | 39 | 6 |
+| BZ2_bzCompressInit | 47 | 47 | 5 |
+| add_pair_to_block | 66 | 66 | 2 |
+| copy_input_until_stop | 67 | 67 | 5 |
+| BZ2_bzCompress | 26 | 26 | 4 |
+| BZ2_bzDecompressInit | 23 | 23 | 4 |
+| unRLE_obuf_to_output_FAST | 196 | 196 | 7 |
+| unRLE_obuf_to_output_SMALL | 237 | 237 | 2 |
+| BZ2_bzDecompress | 29 | 29 | 3 |
+| BZ2_bzWriteOpen | 25 | 25 | 7 |
+| BZ2_bzWrite | 27 | 27 | 6 |
+| BZ2_bzReadOpen | 32 | 32 | 7 |
+| BZ2_bzRead | 34 | 34 | 5 |
+| BZ2_bzReadGetUnused | 24 | 24 | 4 |
+| generateMTFValues | 22 | 22 | 1 |
+| sendMTFValues | 307 | 307 | 1 |
+| BZ2_compressBlock | 25 | 25 | 1 |
+| BZ2_hbCreateDecodeTables | 43 | 43 | 7 |
+
+Whole program (tool, same run): `stack fold: 77 routines, 1914 loads replaced, 775 register syncs, 130 address folds`.
+
+<!-- ==================== DEVIRT_PRACTICE.md ==================== -->
+
+# De-virtualization in practice: cc1, one run
+
+Run: `$PIN -t obj-intel64/project.so -prof_time 2 -verbose -dump_prof -- ./cc1 200.i -o tool.s`
+(`data/cc1_profile.txt`, output identical to native, md5 290a33647ad8fe87f5776a7ff7aee8cd).
+
+## What the tool itself reports (`data/cc1_profile.txt`)
+
+- indirect jump/call sites profiled in TC: **935**
+- de-virtualized in TC2: **81 indirect calls + 170 indirect jumps** (251 sites, 449 guarded targets in total)
+
+The tool does not print why a site was not guarded, so we re-applied its rule (project.cpp:1749-1768: at least
+100 executions, at most 3 targets each with at least 10%, together at least 80%, target must have a TC2 copy,
+call targets must be routine entries) to the profile the tool dumped (`data/cc1_profile.edge-profile.csv`) with
+`data/devirt_sites.py` (result: `data/devirt_sites_cc1.json`). The dump stores the targets per basic block, so a
+block with several indirect sites cannot be split; those are counted separately.
+
+## Breakdown of the 935 sites
+
+| category | sites | how determined |
+|---|---|---|
+| never executed during the window | 556 | in no executed block of the profile |
+| executed, ran fewer than 100 times | 103 | rule, single-site blocks |
+| executed, chosen targets would cover less than 80% | 18 | rule, single-site blocks |
+| executed, no eligible target (every target below 10% or without a TC2 copy) | 2 | rule, single-site blocks |
+| executed, in a block with several indirect sites (not attributable) | 7 (in 3 blocks) | targets mixed in the dump |
+| **qualified and guarded** (reconstruction) | **249**: 79 calls + 170 jumps | rule, single-site blocks |
+
+Cross-check: the reconstruction finds 79 calls + 170 jumps in single-site blocks; the tool guarded 81 + 170. The difference of 2 calls lies within the 7 sites that cannot be attributed.
+
+Graph: `graphs/devirt_sites.png`.
+
+Effect on time (from docs/VERIFICATION.md, cc1 ablation, mean of 2 paired rounds): default -13.57% vs native,
+with `-no_devirt` -22.81% (`docs/verify_raw/cc1_ablation_summary.tsv`).
+
+<!-- ==================== PROFTIME.md ==================== -->
+
+# bzip2 with -prof_time 1, 2, 3, 4
+
+One run each: `$PIN -t obj-intel64/project.so -prof_time N -verbose -- ./bzip2 -c input-long.txt` (no taskset).
+Sources: `data/bzip2_prof_time_1.txt` ... `data/bzip2_prof_time_4.txt` (tool `-verbose` statistics and timing
+lines; each output compared with a native run). These four runs were not paired with native runs.
+
+| prof_time | window (s) | hot routines in TC2 | TC2 bytes | folded routines | loads replaced | address folds | jumps inverted | jumps added | jumps removed | cold blocks | devirt calls/jumps | TC2 build (s) | TC2 execution (s) | end-to-end (s) | printed line (s) | output |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | 1.000 | 46 | 48003 | 77 | 1914 | 130 | 118 | 97 | 44 | 758 | 0/0 | 0.006 | 3.732 | 4.738 | 4.732 | IDENTICAL |
+| 2 | 2.002 | 46 | 48003 | 77 | 1914 | 130 | 118 | 97 | 44 | 758 | 0/0 | 0.010 | 2.604 | 4.617 | 4.604 | IDENTICAL |
+| 3 | 3.011 | 46 | 48003 | 77 | 1914 | 130 | 118 | 97 | 44 | 758 | 0/0 | 0.005 | 1.479 | 4.494 | 4.479 | IDENTICAL |
+| 4 | 4.002 | 46 | 48003 | 77 | 1914 | 130 | 118 | 97 | 44 | 758 | 0/0 | 0.009 | 1.762 | 5.774 | 5.762 | IDENTICAL |
+
+Notes on the columns (what the tool reports, not interpretation):
+- "folded routines", "loads replaced" and "address folds" come from the stack-fold analysis, which runs once
+  before the program starts (it does not use the profile).
+- The tool does not report a count of reordered blocks; the reordering columns are its jump statistics and
+  the number of blocks placed in the cold region.
+
+<!-- ==================== BASE_CHANGES.md ==================== -->
+
+# What we changed in the provided tool
+
+Line numbers: `bprofile-with-gearing.cpp` (the provided tool, unchanged in our repository) and `project.cpp`
+(our tool). "Observed" means we saw the problem happen; otherwise the change comes from reading the code.
+
+| feature | provided tool (bprofile-with-gearing.cpp) | our tool (project.cpp) | why it mattered |
+|---|---|---|---|
+| Indirect-jump profiling stub | `AND RAX, MAX_TARG_ADDRS` changes the flags, lines 850-853 | flag-free hash with MOVZX + 256-byte table, `emit_indirect_profile()` 1527-1560 (hash 1541-1546) | **observed**: base tool's cc1 output differs at byte 6669460 (docs/verify_raw/x_base_cc1.txt); ours identical |
+| Target hash | `target & 3` (4 slots), lines 175, 850-853 | `(target >> 4) & 15` (16 slots), table filled in `allocate_region()` 851-852 | aligned targets all landed in one slot |
+| Indirect calls profiled? | only jumps: `!INS_IsCall(ins)`, line 727 | jumps and calls, sites created in `analyze_image()` 790-799 | de-virtualization of calls needs call targets |
+| Target operand of `jmp/call reg` | "no memory operand" test, lines 746-748 | first explicit operand, `get_target_op()` 1475-1505 (1483-1484) | `call reg` has a hidden memory operand |
+| Block counter | always saves RAX through a static variable, counter at block end, lines 710, 946-972, 1470-1474 | `add [rip+ctr],1` where flags are dead, else a dead register, else RAX saved; placed at a flags-dead point; `emit_block_counter()` 1433-1463, `flags_dead_from()` 549, `find_dead_reg()` 562 | cheaper profiling: +7.61% vs native with it, see ablation (docs/VERIFICATION.md) |
+| Fall-through / sparse counters | a fall-through counter after every jcc, lines 1503-1508 | counters derived from a single predecessor, `analyze_image()` 771-788, `derive_profile()` 1652-1680 | fewer stubs in TC |
+| Switching profiling off | NOP4 + `memcpy` of a 5-byte jmp over live code, lines 714, 582 | 8-byte pad, one aligned 4-byte atomic store, `fill_pad()` 230, `patch_pad_to_jump()` 251-259, `disable_profiling()` 1682 | no torn instruction while the program runs |
+| TC -> TC2 switch | two `memcpy`s into the live NOP7 head, lines 1659-1665 | trampoline written first, then one 4-byte store on the head pad, `commit_tc2()` 2036-2053 | same; verified live (dumps/live_pad_before_after.txt) |
+| Building TC2 | edits the TC list in place: `orig_ins_addr = new_ins_addr`, lines 1700-1720 | fresh list from the original instructions, `build_tc2()` 1981-2032 | true original address in every entry; reordering and devirt need it |
+| Region placement | first free address above the highest routine, lines 1840-1886 | ~1 GB above the image end, within 2 GB, fallback with a warning, `allocate_region()` 817-857 (gap 833) | the heap grows right after the image |
+| Jump-to-original table | new index after incrementing the counter (lookups never hit), lines 1157-1171 | direct rel32 branch to the original address; map lookup in `jslot_for()` 860 for the rare fallback | table overflow |
+| "No operand" encoding | target/RIP address 0 means "none", lines 997-998, 1039-1040, 1233-1234 | explicit `IF_HAS_TARG` / `IF_HAS_RIP` flags, lines 111-112, `analyze_ins()` 495-503 | address 0 is a legal value |
+| Untranslatable code | a decode failure aborts all translation (`return -1`), lines 1480-1484 | skip only that routine: JRCXZ/LOOP/XBEGIN 655-659, branch into the middle of an instruction 703-708 | sgcc binaries could not be translated at all otherwise |
+| Probe safety | none beyond Pin's own check | no probe for routines entered near their start or that fall off their end, `analyze_image()` 638-641, 669-675 | **observed**: sgcc_peak crashed (docs/PHASE_2.md) |
+| Waiting for the window | `sleep(prof_time)`, line 1687 | clock-checked short sleeps, `create_tc2_thread_func()` 2071-2078 | sleep overshoot on our VM (docs/PHASE_2.md) |
+| Error reporting | messages, then continues on the original code (e.g. line 1993) | `TOOL_ERROR` prints `ERROR:` and counts, line 93; final count in `Fini()` 2129 | a silent fallback looks like "no speed-up" |
+| Timing output | `elapsed + prof_time` from the TC2 commit, lines 1943-1946 | same line kept, plus window / build / commit / execution / end-to-end, `Fini()` 2106-2130 | an honest end-to-end number |
+| Self-check | none | `verify_branches()` 464-477 decodes every branch after layout | catches encoder/layout mistakes |
+| De-virtualization | not present | `devirt_targets()` 1736, `emit_devirt_call()` 1773, `emit_devirt_jmp()` 1801 | required by the assignment; cc1 -13.57% vs -22.81% without (docs/VERIFICATION.md) |
+| Code reordering | not present | `reorder_routine_blocks()` 1929, `emit_tc2_block()` 1892, `invert_jcc()` 1855 | the additional optimization from the list |
+| Stack fold + address fold | not present | `compute_stack_folds_rtn()` 1117, `address_fold()` 1043, applied by `emit_ins()` 1411 in TC and TC2 | bzip2 -9.03% -> +15.86% (ablation, docs/VERIFICATION.md) |
+
+<!-- ==================== TRIED.md ==================== -->
+
+# What we tried that did not help, or dropped
+
+Numbers marked *(dev)* are development measurements (first scripts, not re-measured); others are final.
+
+| idea / approach | what happened | decision | source |
+|---|---|---|---|
+| Stack fold with only the never-used registers r10/r11 as spares | +4.9% *(dev)*: too few spares; most hot slots of mainGtU stayed in memory | replaced by liveness-based spares (r11, r10, r9, r8, rdi, rsi, rcx usable where the program's value is dead) | docs/PHASE_7.md |
+| Liveness-based spares alone (no address fold) | +5.0% *(dev)*, barely better although mainGtU then folded 207 loads in 7 slots | kept, and added the address fold, which gave the large step (+17.0% *(dev)*; final: without it +2.73%, with it +15.86%) | docs/PHASE_7.md; docs/VERIFICATION.md (ablation) |
+| Address fold, first version | produced 0 address folds: the check for "the operation overwrites P" used a register mask that excludes base registers | fixed by checking the destination operand directly | presentation/PROJECT_LOG.md (bug table); commit 4054a0a |
+| Code reordering on bzip2 | -12.0% vs -10.6% without it *(dev)*, within noise; final: +13.22% without vs +15.86% with (4 rounds each) | kept (required; helps cc1: -13.57% with devirt+reorder vs -20.23% without reorder) | docs/PHASE_5.md; docs/VERIFICATION.md |
+| De-virtualization on bzip2 | 0 sites qualify, TC2 identical with and without it | kept (required; helps cc1) | docs/PHASE_4.md; docs/verify_raw/s8_evidence_*.txt |
+| Sparse profiling on bzip2 | cheap only -12.1%, cheap + sparse -12.4% *(dev)*: neutral | kept (removes most fall-through stubs, costs nothing) | docs/PHASE_6.md |
+| ExtTSP block layout (the paper's main contribution) | the paper reports about 0.5-1% over the Pettis-Hansen/TSP approach, below our run-to-run noise | not implemented | docs/PHASE_5.md; docs/REFERENCES.md |
+| Code alignment (padding hot code to cache-line boundaries) | not found in our development notes | not tried | (none) |
+| Timing with native pinned to CPU 0 (first scripts) | development numbers came from pinned native runs; the course's manual procedure runs native unpinned | final measurements: native unpinned, tool `taskset -c 0` | docs/PHASE_1.md; docs/VERIFICATION.md (STEP 1, machine note) |
+| Conclusions from a single noisy session | an early note said de-virtualization and reordering made cc1 slower (-24.7% with vs -3.6% without, native varied 27-34 s) | withdrawn; re-measurement: they help (-13.57% vs -23.82%) | docs/VERIFICATION.md (discrepancies) |
+| Comparing against a cached native output (one test helper) | weak evidence for the gcc binaries | replaced by a fresh native run per round in a separate file, with md5 and empty-file checks | docs/VERIFICATION.md (STEP 1) |
+| Waiting for the window with one `sleep(prof_time)` | could overshoot on our VM | short sleeps with a clock check and an overshoot warning | docs/PHASE_2.md |
+| Probing every translated routine | sgcc_peak crashed (other code jumps into the overwritten first bytes) | routines entered near their start, or falling off their end, are translated but not probed | docs/PHASE_2.md |
+| Reporting Pin's probe refusals as errors | Pin refuses probes for some tiny routines; harmless | turned into a verbose note | docs/PHASE_2.md |
+| Running the tool first instead of native first | 10 rounds: end-to-end median +17.89%, all 10 above 5% (but no taskset, output to a file, faster machine that day) | no change to the procedure; order alone cannot be credited | docs/run10_toolfirst/RESULTS.md |
+| Reading live patch-pad addresses from a `-dump_orig_code` run | that option lays TC out slightly differently, so its addresses belong to another stub | for live reads we use the addresses of the matching run | presentation/BEFORE_AFTER.md (section on the switched-off profiling pad) |

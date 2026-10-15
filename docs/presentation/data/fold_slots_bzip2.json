@@ -1,0 +1,996 @@
+{
+ "fallbackSimpleSort": {
+  "tool_loads_replaced": 42,
+  "sum_per_slot": 42,
+  "slots": [
+   {
+    "slot": "[rbp-0x28]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 6,
+    "tc_reads_left": 0,
+    "replaced": 6
+   },
+   {
+    "slot": "[rbp-0x24]",
+    "size": 4,
+    "spare": "rdi",
+    "orig_reads": 4,
+    "tc_reads_left": 0,
+    "replaced": 4
+   },
+   {
+    "slot": "[rbp-0x20]",
+    "size": 8,
+    "spare": "rsi",
+    "orig_reads": 4,
+    "tc_reads_left": 0,
+    "replaced": 4
+   },
+   {
+    "slot": "[rbp-0x18]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 10,
+    "tc_reads_left": 0,
+    "replaced": 10
+   },
+   {
+    "slot": "[rbp-0xc]",
+    "size": 4,
+    "spare": "rcx",
+    "orig_reads": 4,
+    "tc_reads_left": 2,
+    "replaced": 2
+   },
+   {
+    "slot": "[rbp-0x8]",
+    "size": 4,
+    "spare": "r10",
+    "orig_reads": 10,
+    "tc_reads_left": 0,
+    "replaced": 10
+   },
+   {
+    "slot": "[rbp-0x4]",
+    "size": 4,
+    "spare": "r8",
+    "orig_reads": 6,
+    "tc_reads_left": 0,
+    "replaced": 6
+   }
+  ]
+ },
+ "fallbackQSort3": {
+  "tool_loads_replaced": 24,
+  "sum_per_slot": 24,
+  "slots": [
+   {
+    "slot": "[rbp-0x390]",
+    "size": 8,
+    "spare": "r10",
+    "orig_reads": 6,
+    "tc_reads_left": 4,
+    "replaced": 2
+   },
+   {
+    "slot": "[rbp-0x388]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 26,
+    "tc_reads_left": 4,
+    "replaced": 22
+   }
+  ]
+ },
+ "mainGtU": {
+  "tool_loads_replaced": 207,
+  "sum_per_slot": 207,
+  "slots": [
+   {
+    "slot": "[rbp-0x28]",
+    "size": 8,
+    "spare": "rsi",
+    "orig_reads": 16,
+    "tc_reads_left": 0,
+    "replaced": 16
+   },
+   {
+    "slot": "[rbp-0x20]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 40,
+    "tc_reads_left": 0,
+    "replaced": 40
+   },
+   {
+    "slot": "[rbp-0x18]",
+    "size": 4,
+    "spare": "r8",
+    "orig_reads": 29,
+    "tc_reads_left": 2,
+    "replaced": 27
+   },
+   {
+    "slot": "[rbp-0x14]",
+    "size": 4,
+    "spare": "rdi",
+    "orig_reads": 29,
+    "tc_reads_left": 1,
+    "replaced": 28
+   },
+   {
+    "slot": "[rbp-0xa]",
+    "size": 2,
+    "spare": "rcx",
+    "orig_reads": 16,
+    "tc_reads_left": 0,
+    "replaced": 16
+   },
+   {
+    "slot": "[rbp-0x6]",
+    "size": 1,
+    "spare": "r10",
+    "orig_reads": 40,
+    "tc_reads_left": 0,
+    "replaced": 40
+   },
+   {
+    "slot": "[rbp-0x5]",
+    "size": 1,
+    "spare": "r9",
+    "orig_reads": 40,
+    "tc_reads_left": 0,
+    "replaced": 40
+   }
+  ]
+ },
+ "mainSimpleSort": {
+  "tool_loads_replaced": 27,
+  "sum_per_slot": 27,
+  "slots": [
+   {
+    "slot": "[rbp-0x44]",
+    "size": 4,
+    "spare": "rcx",
+    "orig_reads": 4,
+    "tc_reads_left": 3,
+    "replaced": 1
+   },
+   {
+    "slot": "[rbp-0x40]",
+    "size": 4,
+    "spare": "rsi",
+    "orig_reads": 5,
+    "tc_reads_left": 4,
+    "replaced": 1
+   },
+   {
+    "slot": "[rbp-0x28]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 15,
+    "tc_reads_left": 6,
+    "replaced": 9
+   },
+   {
+    "slot": "[rbp-0x18]",
+    "size": 4,
+    "spare": "rdi",
+    "orig_reads": 6,
+    "tc_reads_left": 6,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x14]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 13,
+    "tc_reads_left": 6,
+    "replaced": 7
+   },
+   {
+    "slot": "[rbp-0x8]",
+    "size": 4,
+    "spare": "r10",
+    "orig_reads": 15,
+    "tc_reads_left": 12,
+    "replaced": 3
+   },
+   {
+    "slot": "[rbp-0x4]",
+    "size": 4,
+    "spare": "r8",
+    "orig_reads": 9,
+    "tc_reads_left": 3,
+    "replaced": 6
+   }
+  ]
+ },
+ "mainQSort3": {
+  "tool_loads_replaced": 31,
+  "sum_per_slot": 31,
+  "slots": [
+   {
+    "slot": "[rbp-0x560]",
+    "size": 8,
+    "spare": "r8",
+    "orig_reads": 6,
+    "tc_reads_left": 6,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x558]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 26,
+    "tc_reads_left": 7,
+    "replaced": 19
+   },
+   {
+    "slot": "[rbp-0x54c]",
+    "size": 4,
+    "spare": "rcx",
+    "orig_reads": 4,
+    "tc_reads_left": 4,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x540]",
+    "size": 4,
+    "spare": "rdi",
+    "orig_reads": 5,
+    "tc_reads_left": 0,
+    "replaced": 5
+   },
+   {
+    "slot": "[rbp-0x53c]",
+    "size": 4,
+    "spare": "r10",
+    "orig_reads": 7,
+    "tc_reads_left": 0,
+    "replaced": 7
+   },
+   {
+    "slot": "[rbp-0x530]",
+    "size": 4,
+    "spare": "rsi",
+    "orig_reads": 5,
+    "tc_reads_left": 5,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x52c]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 7,
+    "tc_reads_left": 7,
+    "replaced": 0
+   }
+  ]
+ },
+ "mainSort": {
+  "tool_loads_replaced": 39,
+  "sum_per_slot": 39,
+  "slots": [
+   {
+    "slot": "[rbp-0xd78]",
+    "size": 4,
+    "spare": "rsi",
+    "orig_reads": 4,
+    "tc_reads_left": 4,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0xd74]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 11,
+    "tc_reads_left": 11,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0xd70]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 36,
+    "tc_reads_left": 13,
+    "replaced": 23
+   },
+   {
+    "slot": "[rbp-0xd68]",
+    "size": 8,
+    "spare": "rdi",
+    "orig_reads": 9,
+    "tc_reads_left": 5,
+    "replaced": 4
+   },
+   {
+    "slot": "[rbp-0xd60]",
+    "size": 8,
+    "spare": "r10",
+    "orig_reads": 17,
+    "tc_reads_left": 5,
+    "replaced": 12
+   },
+   {
+    "slot": "[rbp-0xd58]",
+    "size": 8,
+    "spare": "r8",
+    "orig_reads": 11,
+    "tc_reads_left": 11,
+    "replaced": 0
+   }
+  ]
+ },
+ "BZ2_bzCompressInit": {
+  "tool_loads_replaced": 47,
+  "sum_per_slot": 47,
+  "slots": [
+   {
+    "slot": "[rbp-0x24]",
+    "size": 4,
+    "spare": "r8",
+    "orig_reads": 4,
+    "tc_reads_left": 4,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x1c]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 5,
+    "tc_reads_left": 5,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x18]",
+    "size": 8,
+    "spare": "r10",
+    "orig_reads": 27,
+    "tc_reads_left": 10,
+    "replaced": 17
+   },
+   {
+    "slot": "[rbp-0xc]",
+    "size": 4,
+    "spare": "rdi",
+    "orig_reads": 2,
+    "tc_reads_left": 1,
+    "replaced": 1
+   },
+   {
+    "slot": "[rbp-0x8]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 37,
+    "tc_reads_left": 8,
+    "replaced": 29
+   }
+  ]
+ },
+ "add_pair_to_block": {
+  "tool_loads_replaced": 66,
+  "sum_per_slot": 66,
+  "slots": [
+   {
+    "slot": "[rbp-0x18]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 55,
+    "tc_reads_left": 0,
+    "replaced": 55
+   },
+   {
+    "slot": "[rbp-0x5]",
+    "size": 1,
+    "spare": "r10",
+    "orig_reads": 11,
+    "tc_reads_left": 0,
+    "replaced": 11
+   }
+  ]
+ },
+ "copy_input_until_stop": {
+  "tool_loads_replaced": 67,
+  "sum_per_slot": 67,
+  "slots": [
+   {
+    "slot": "[rbp-0x28]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 64,
+    "tc_reads_left": 2,
+    "replaced": 62
+   },
+   {
+    "slot": "[rbp-0x11]",
+    "size": 1,
+    "spare": "r8",
+    "orig_reads": 2,
+    "tc_reads_left": 2,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x10]",
+    "size": 4,
+    "spare": "r10",
+    "orig_reads": 4,
+    "tc_reads_left": 1,
+    "replaced": 3
+   },
+   {
+    "slot": "[rbp-0x9]",
+    "size": 1,
+    "spare": "rdi",
+    "orig_reads": 2,
+    "tc_reads_left": 0,
+    "replaced": 2
+   },
+   {
+    "slot": "[rbp-0x8]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 4,
+    "tc_reads_left": 4,
+    "replaced": 0
+   }
+  ]
+ },
+ "BZ2_bzCompress": {
+  "tool_loads_replaced": 26,
+  "sum_per_slot": 26,
+  "slots": [
+   {
+    "slot": "[rbp-0x1c]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 5,
+    "tc_reads_left": 5,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x18]",
+    "size": 8,
+    "spare": "r10",
+    "orig_reads": 8,
+    "tc_reads_left": 0,
+    "replaced": 8
+   },
+   {
+    "slot": "[rbp-0x9]",
+    "size": 1,
+    "spare": "r8",
+    "orig_reads": 2,
+    "tc_reads_left": 1,
+    "replaced": 1
+   },
+   {
+    "slot": "[rbp-0x8]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 21,
+    "tc_reads_left": 4,
+    "replaced": 17
+   }
+  ]
+ },
+ "BZ2_bzDecompressInit": {
+  "tool_loads_replaced": 23,
+  "sum_per_slot": 23,
+  "slots": [
+   {
+    "slot": "[rbp-0x20]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 3,
+    "tc_reads_left": 3,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x1c]",
+    "size": 4,
+    "spare": "r8",
+    "orig_reads": 3,
+    "tc_reads_left": 3,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x18]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 13,
+    "tc_reads_left": 3,
+    "replaced": 10
+   },
+   {
+    "slot": "[rbp-0x8]",
+    "size": 8,
+    "spare": "r10",
+    "orig_reads": 13,
+    "tc_reads_left": 0,
+    "replaced": 13
+   }
+  ]
+ },
+ "unRLE_obuf_to_output_FAST": {
+  "tool_loads_replaced": 196,
+  "sum_per_slot": 196,
+  "slots": [
+   {
+    "slot": "[rbp-0x48]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 155,
+    "tc_reads_left": 0,
+    "replaced": 155
+   },
+   {
+    "slot": "[rbp-0x38]",
+    "size": 4,
+    "spare": "rsi",
+    "orig_reads": 5,
+    "tc_reads_left": 0,
+    "replaced": 5
+   },
+   {
+    "slot": "[rbp-0x30]",
+    "size": 8,
+    "spare": "r8",
+    "orig_reads": 6,
+    "tc_reads_left": 0,
+    "replaced": 6
+   },
+   {
+    "slot": "[rbp-0x25]",
+    "size": 1,
+    "spare": "r10",
+    "orig_reads": 18,
+    "tc_reads_left": 0,
+    "replaced": 18
+   },
+   {
+    "slot": "[rbp-0x24]",
+    "size": 4,
+    "spare": "rcx",
+    "orig_reads": 5,
+    "tc_reads_left": 4,
+    "replaced": 1
+   },
+   {
+    "slot": "[rbp-0x18]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 11,
+    "tc_reads_left": 6,
+    "replaced": 5
+   },
+   {
+    "slot": "[rbp-0x10]",
+    "size": 4,
+    "spare": "rdi",
+    "orig_reads": 6,
+    "tc_reads_left": 0,
+    "replaced": 6
+   }
+  ]
+ },
+ "unRLE_obuf_to_output_SMALL": {
+  "tool_loads_replaced": 237,
+  "sum_per_slot": 237,
+  "slots": [
+   {
+    "slot": "[rbp-0x18]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 229,
+    "tc_reads_left": 10,
+    "replaced": 219
+   },
+   {
+    "slot": "[rbp-0x1]",
+    "size": 1,
+    "spare": "r10",
+    "orig_reads": 18,
+    "tc_reads_left": 0,
+    "replaced": 18
+   }
+  ]
+ },
+ "BZ2_bzDecompress": {
+  "tool_loads_replaced": 29,
+  "sum_per_slot": 29,
+  "slots": [
+   {
+    "slot": "[rbp-0x28]",
+    "size": 8,
+    "spare": "r10",
+    "orig_reads": 3,
+    "tc_reads_left": 0,
+    "replaced": 3
+   },
+   {
+    "slot": "[rbp-0x14]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 3,
+    "tc_reads_left": 3,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x10]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 32,
+    "tc_reads_left": 6,
+    "replaced": 26
+   }
+  ]
+ },
+ "BZ2_bzWriteOpen": {
+  "tool_loads_replaced": 25,
+  "sum_per_slot": 25,
+  "slots": [
+   {
+    "slot": "[rbp-0x2c]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 4,
+    "tc_reads_left": 4,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x28]",
+    "size": 4,
+    "spare": "r8",
+    "orig_reads": 3,
+    "tc_reads_left": 3,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x24]",
+    "size": 4,
+    "spare": "rdi",
+    "orig_reads": 3,
+    "tc_reads_left": 1,
+    "replaced": 2
+   },
+   {
+    "slot": "[rbp-0x20]",
+    "size": 8,
+    "spare": "rsi",
+    "orig_reads": 3,
+    "tc_reads_left": 3,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x18]",
+    "size": 8,
+    "spare": "r10",
+    "orig_reads": 12,
+    "tc_reads_left": 8,
+    "replaced": 4
+   },
+   {
+    "slot": "[rbp-0xc]",
+    "size": 4,
+    "spare": "rcx",
+    "orig_reads": 3,
+    "tc_reads_left": 3,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x8]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 25,
+    "tc_reads_left": 6,
+    "replaced": 19
+   }
+  ]
+ },
+ "BZ2_bzWrite": {
+  "tool_loads_replaced": 27,
+  "sum_per_slot": 27,
+  "slots": [
+   {
+    "slot": "[rbp-0x3c]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 3,
+    "tc_reads_left": 3,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x38]",
+    "size": 8,
+    "spare": "rdi",
+    "orig_reads": 2,
+    "tc_reads_left": 1,
+    "replaced": 1
+   },
+   {
+    "slot": "[rbp-0x28]",
+    "size": 8,
+    "spare": "r10",
+    "orig_reads": 16,
+    "tc_reads_left": 10,
+    "replaced": 6
+   },
+   {
+    "slot": "[rbp-0x10]",
+    "size": 4,
+    "spare": "rsi",
+    "orig_reads": 2,
+    "tc_reads_left": 1,
+    "replaced": 1
+   },
+   {
+    "slot": "[rbp-0xc]",
+    "size": 4,
+    "spare": "r8",
+    "orig_reads": 3,
+    "tc_reads_left": 3,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x8]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 31,
+    "tc_reads_left": 12,
+    "replaced": 19
+   }
+  ]
+ },
+ "BZ2_bzReadOpen": {
+  "tool_loads_replaced": 32,
+  "sum_per_slot": 32,
+  "slots": [
+   {
+    "slot": "[rbp-0x34]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 4,
+    "tc_reads_left": 4,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x30]",
+    "size": 8,
+    "spare": "r8",
+    "orig_reads": 3,
+    "tc_reads_left": 3,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x28]",
+    "size": 4,
+    "spare": "rdi",
+    "orig_reads": 3,
+    "tc_reads_left": 1,
+    "replaced": 2
+   },
+   {
+    "slot": "[rbp-0x24]",
+    "size": 4,
+    "spare": "rsi",
+    "orig_reads": 3,
+    "tc_reads_left": 3,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x20]",
+    "size": 8,
+    "spare": "rcx",
+    "orig_reads": 3,
+    "tc_reads_left": 3,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x18]",
+    "size": 8,
+    "spare": "r10",
+    "orig_reads": 12,
+    "tc_reads_left": 8,
+    "replaced": 4
+   },
+   {
+    "slot": "[rbp-0x8]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 32,
+    "tc_reads_left": 6,
+    "replaced": 26
+   }
+  ]
+ },
+ "BZ2_bzRead": {
+  "tool_loads_replaced": 34,
+  "sum_per_slot": 34,
+  "slots": [
+   {
+    "slot": "[rbp-0x2c]",
+    "size": 4,
+    "spare": "r8",
+    "orig_reads": 5,
+    "tc_reads_left": 5,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x28]",
+    "size": 8,
+    "spare": "rdi",
+    "orig_reads": 2,
+    "tc_reads_left": 0,
+    "replaced": 2
+   },
+   {
+    "slot": "[rbp-0x18]",
+    "size": 8,
+    "spare": "r10",
+    "orig_reads": 20,
+    "tc_reads_left": 12,
+    "replaced": 8
+   },
+   {
+    "slot": "[rbp-0x10]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 6,
+    "tc_reads_left": 6,
+    "replaced": 0
+   },
+   {
+    "slot": "[rbp-0x8]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 41,
+    "tc_reads_left": 17,
+    "replaced": 24
+   }
+  ]
+ },
+ "BZ2_bzReadGetUnused": {
+  "tool_loads_replaced": 24,
+  "sum_per_slot": 24,
+  "slots": [
+   {
+    "slot": "[rbp-0x30]",
+    "size": 8,
+    "spare": "r9",
+    "orig_reads": 2,
+    "tc_reads_left": 0,
+    "replaced": 2
+   },
+   {
+    "slot": "[rbp-0x28]",
+    "size": 8,
+    "spare": "r8",
+    "orig_reads": 2,
+    "tc_reads_left": 0,
+    "replaced": 2
+   },
+   {
+    "slot": "[rbp-0x18]",
+    "size": 8,
+    "spare": "r10",
+    "orig_reads": 8,
+    "tc_reads_left": 0,
+    "replaced": 8
+   },
+   {
+    "slot": "[rbp-0x8]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 12,
+    "tc_reads_left": 0,
+    "replaced": 12
+   }
+  ]
+ },
+ "generateMTFValues": {
+  "tool_loads_replaced": 22,
+  "sum_per_slot": 22,
+  "slots": [
+   {
+    "slot": "[rbp-0x158]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 23,
+    "tc_reads_left": 1,
+    "replaced": 22
+   }
+  ]
+ },
+ "sendMTFValues": {
+  "tool_loads_replaced": 307,
+  "sum_per_slot": 307,
+  "slots": [
+   {
+    "slot": "[rbp-0xf8]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 390,
+    "tc_reads_left": 83,
+    "replaced": 307
+   }
+  ]
+ },
+ "BZ2_compressBlock": {
+  "tool_loads_replaced": 25,
+  "sum_per_slot": 25,
+  "slots": [
+   {
+    "slot": "[rbp-0x8]",
+    "size": 8,
+    "spare": "r11",
+    "orig_reads": 51,
+    "tc_reads_left": 26,
+    "replaced": 25
+   }
+  ]
+ },
+ "BZ2_hbCreateDecodeTables": {
+  "tool_loads_replaced": 43,
+  "sum_per_slot": 43,
+  "slots": [
+   {
+    "slot": "[rbp-0x38]",
+    "size": 4,
+    "spare": "r9",
+    "orig_reads": 3,
+    "tc_reads_left": 0,
+    "replaced": 3
+   },
+   {
+    "slot": "[rbp-0x34]",
+    "size": 4,
+    "spare": "r8",
+    "orig_reads": 3,
+    "tc_reads_left": 0,
+    "replaced": 3
+   },
+   {
+    "slot": "[rbp-0x30]",
+    "size": 8,
+    "spare": "rcx",
+    "orig_reads": 2,
+    "tc_reads_left": 0,
+    "replaced": 2
+   },
+   {
+    "slot": "[rbp-0x20]",
+    "size": 8,
+    "spare": "r10",
+    "orig_reads": 9,
+    "tc_reads_left": 0,
+    "replaced": 9
+   },
+   {
+    "slot": "[rbp-0x18]",
+    "size": 8,
+    "spare": "rdi",
+    "orig_reads": 3,
+    "tc_reads_left": 0,
+    "replaced": 3
+   },
+   {
+    "slot": "[rbp-0xc]",
+    "size": 4,
+    "spare": "rsi",
+    "orig_reads": 3,
+    "tc_reads_left": 0,
+    "replaced": 3
+   },
+   {
+    "slot": "[rbp-0x8]",
+    "size": 4,
+    "spare": "r11",
+    "orig_reads": 20,
+    "tc_reads_left": 0,
+    "replaced": 20
+   }
+  ]
+ }
+}
