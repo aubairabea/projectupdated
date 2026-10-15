@@ -13,6 +13,9 @@ head() { echo; echo "${B}  $*  ${N}"; sleep "$PAUSE"; }
 show() { echo "${Y}\$ $*${N}"; }
 TIMEFORMAT='real %3R s   user %3U s   sys %3S s'
 OUT=/tmp/demo_$$; mkdir -p $OUT
+ROOT=$(pwd)
+# keep the working tree clean: bzip2 -k -f writes input-long.txt.bz2, the base tool writes bprofile.out
+[ -f input-long.txt.bz2 ] && cp -p input-long.txt.bz2 $OUT/saved_input.bz2
 
 head "1/4  Native bzip2 (input-long.txt, 20.8 MB)"
 rm -f input-long.txt.bz2
@@ -51,7 +54,7 @@ if [ "$1" = "--cc1" ]; then
   show "./cc1 200.i -o cc1_native.s"
   ./cc1 200.i -o $OUT/cc1_native.s > /dev/null 2>&1
   show "pin -t obj-intel64/bprofile-with-gearing.so -prof_time 2 -- ./cc1 200.i -o cc1_base.s"
-  $PIN -t $BASE -prof_time 2 -- ./cc1 200.i -o $OUT/cc1_base.s > /dev/null 2> $OUT/cc1_base_err.txt
+  (cd $OUT && $PIN -t $ROOT/$BASE -prof_time 2 -- $ROOT/cc1 $ROOT/200.i -o $OUT/cc1_base.s > /dev/null 2> $OUT/cc1_base_err.txt)
   grep 'Translated code run' $OUT/cc1_base_err.txt
   show "cmp cc1_native.s cc1_base.s"
   if cmp $OUT/cc1_native.s $OUT/cc1_base.s; then echo "${G}IDENTICAL${N}"; else echo "${R}base tool: DIFFERENT output${N}"; fi
@@ -62,5 +65,6 @@ if [ "$1" = "--cc1" ]; then
   show "cmp cc1_native.s cc1_ours.s"
   if cmp $OUT/cc1_native.s $OUT/cc1_ours.s; then echo "${G}our tool: IDENTICAL${N}"; else echo "${R}DIFFERENT${N}"; fi
 fi
+[ -f $OUT/saved_input.bz2 ] && mv $OUT/saved_input.bz2 input-long.txt.bz2
 rm -rf $OUT
 echo
